@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智能导航 - 智游助手</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>智游助手</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="planning.html" class="nav-link">行程规划</a></li>
+                <li><a href="navigation.html" class="nav-link active">智能导航</a></li>
+                <li><a href="profile.html" class="nav-link">个人中心</a></li>
+                <li><a href="#" class="nav-link login-btn">登录</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="navigation-main">
+        <!-- 地图容器 -->
+        <div class="map-container">
+            <div id="map" class="map-view">
+                <!-- 这里将集成地图API，如百度地图或高德地图 -->
+                <div class="map-placeholder">
+                    <i class="fas fa-map"></i>
+                    <p>地图加载中...</p>
+                </div>
+            </div>
+            
+            <!-- 导航控制面板 -->
+            <div class="navigation-panel">
+                <div class="current-location">
+                    <h3><i class="fas fa-location-arrow"></i> 当前位置</h3>
+                    <p>北京市朝阳区建国门外大街1号</p>
+                </div>
+                
+                <div class="destination-info">
+                    <h3><i class="fas fa-map-marker-alt"></i> 目的地</h3>
+                    <p>故宫博物院</p>
+                    <div class="route-info">
+                        <span class="distance"><i class="fas fa-route"></i> 3.2公里</span>
+                        <span class="time"><i class="fas fa-clock"></i> 预计15分钟</span>
+                    </div>
+                </div>
+                
+                <div class="navigation-controls">
+                    <button class="nav-btn start-nav">
+                        <i class="fas fa-play"></i> 开始导航
+                    </button>
+                    <button class="nav-btn voice-nav">
+                        <i class="fas fa-volume-up"></i> 语音导航
+                    </button>
+                    <button class="nav-btn offline-map">
+                        <i class="fas fa-download"></i> 离线地图
+                    </button>
+                </div>
+                
+                <!-- 路线选择 -->
+                <div class="route-options">
+                    <h4>路线选择</h4>
+                    <div class="route-option active">
+                        <div class="route-type">推荐路线</div>
+                        <div class="route-details">3.2公里 · 15分钟 · 避开拥堵</div>
+                    </div>
+                    <div class="route-option">
+                        <div class="route-type">最短路线</div>
+                        <div class="route-details">2.8公里 · 18分钟 · 可能拥堵</div>
+                    </div>
+                    <div class="route-option">
+                        <div class="route-type">风景路线</div>
+                        <div class="route-details">4.1公里 · 20分钟 · 沿途风景</div>
+                    </div>
+                </div>
+                
+                <!-- 附近景点 -->
+                <div class="nearby-attractions">
+                    <h4>附近景点</h4>
+                    <div class="attraction-item">
+                        <i class="fas fa-camera"></i>
+                        <div class="attraction-info">
+                            <span class="name">天安门广场</span>
+                            <span class="distance">500米</span>
+                        </div>
+                    </div>
+                    <div class="attraction-item">
+                        <i class="fas fa-utensils"></i>
+                        <div class="attraction-info">
+                            <span class="name">王府井小吃街</span>
+                            <span class="distance">800米</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 导航指令 -->
+        <div class="navigation-instructions">
+            <div class="instruction-item current">
+                <i class="fas fa-arrow-right"></i>
+                <span>直行500米，然后右转进入长安街</span>
+            </div>
+            <div class="instruction-item">
+                <i class="fas fa-arrow-right"></i>
+                <span>继续直行1.2公里</span>
+            </div>
+            <div class="instruction-item">
+                <i class="fas fa-arrow-left"></i>
+                <span>左转进入故宫东门</span>
+            </div>
+        </div>
+    </main>
+
+    <script src="navigation.js"></script>
+</body>
+</html>

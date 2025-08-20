@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人中心 - 智游助手</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- 导航栏 -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <i class="fas fa-map-marked-alt"></i>
+                <span>智游助手</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link">首页</a></li>
+                <li><a href="planning.html" class="nav-link">行程规划</a></li>
+                <li><a href="navigation.html" class="nav-link">智能导航</a></li>
+                <li><a href="profile.html" class="nav-link active">个人中心</a></li>
+                <li><a href="#" class="nav-link login-btn">退出</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="profile-main">
+        <div class="profile-container">
+            <!-- 用户信息卡片 -->
+            <div class="user-card">
+                <div class="user-avatar">
+                    <img src="https://via.placeholder.com/100x100" alt="用户头像">
+                    <button class="edit-avatar"><i class="fas fa-camera"></i></button>
+                </div>
+                <div class="user-info">
+                    <h2>张三</h2>
+                    <p class="user-level"><i class="fas fa-star"></i> 黄金会员</p>
+                    <p class="join-date">加入时间：2023年5月</p>
+                    <div class="user-stats">
+                        <div class="stat-item">
+                            <span class="stat-number">15</span>
+                            <span class="stat-label">已完成行程</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">42</span>
+                            <span class="stat-label">访问城市</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-number">128</span>
+                            <span class="stat-label">收藏景点</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 功能菜单 -->
+            <div class="profile-menu">
+                <div class="menu-section">
+                    <h3>我的行程</h3>
+                    <div class="menu-items">
+                        <a href="#" class="menu-item">
+                            <i class="fas fa-calendar-check"></i>
+                            <span>历史行程</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="menu-item">
+                            <i class="fas fa-bookmark"></i>
+                            <span>收藏景点</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="menu-item">
+                            <i class="fas fa-heart"></i>
+                            <span>我的评价</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <div class="menu-section">
+                    <h3>账户设置</h3>
+                    <div class="menu-items">
+                        <a href="#" class="menu-item">
+                            <i class="fas fa-user-edit"></i>
+                            <span>个人信息</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="menu-item">
+                            <i class="fas fa-cog"></i>
+                            <span>偏好设置</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                        <a href="#" class="menu-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>隐私安全</span>
+                            <i class="fas fa-chevron-right"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 最近行程 -->
+            <div class="recent-trips">
+                <h3>最近行程</h3>
+                <div class="trip-list">
+                    <div class="trip-item">
+                        <img src="https://via.placeholder.com/80x80" alt="行程图片">
+                        <div class="trip-info">
+                            <h4>北京文化之旅</h4>
+                            <p class="trip-date">2024年2月15日 - 2月18日</p>
+                            <p class="trip-status completed">已完成</p>
+                        </div>
+                        <div class="trip-actions">
+                            <button class="btn-small">查看详情</button>
+                        </div>
+                    </div>
+                    
+                    <div class="trip-item">
+                        <img src="https://via.placeholder.com/80x80" alt="行程图片">
+                        <div class="trip-info">
+                            <h4>杭州西湖游</h4>
+                            <p class="trip-date">2024年3月20日 - 3月22日</p>
+                            <p class="trip-status upcoming">即将开始</p>
+                        </div>
+                        <div class="trip-actions">
+                            <button class="btn-small">修改行程</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="profile.js"></script>
+</body>
+</html>
