@@ -96,9 +96,8 @@ provide('toggleSubmenu', toggleSubmenu)
           <MenuItems :menu-items="menuItems" />
         </ul>
       </div>
-      <component :is="icon" class="w-10 h-10 mr-2" style="width: 20px;margin-right: 0;" />
+      <component :is="icon" class="w-10 h-10 mr-2" style="width: 30px;margin-right: 0;" />
       <a href="/" class="btn btn-ghost text-xl">{{ serverConfig.VITE_APP_TITLE }}</a>
-      <search />
     </div>
     <div class="navbar-center hidden lg:flex">
       <ul class="menu lg:menu-horizontal rounded-box">

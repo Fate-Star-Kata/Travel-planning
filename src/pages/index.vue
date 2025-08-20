@@ -1,112 +1,244 @@
 <template>
   <div class="min-h-screen bg-base-100">
-    <!-- 英雄区域 -->
-    <div class="hero min-h-screen bg-gradient-to-br from-primary/10 to-secondary/10">
-      <div class="hero-content text-center">
-        <div class="max-w-md" v-motion-fade-visible>
-          <h1 class="text-5xl font-bold mb-5" v-motion-slide-up :delay="200">
-            {{ heroSection.title }}
-          </h1>
-          <p class="py-6 text-lg" v-motion-slide-up :delay="400">
-            {{ heroSection.description }}
-          </p>
-          <div class="flex gap-4 justify-center" v-motion-slide-up :delay="600">
-            <button :class="heroSection.primaryButton.class">
-              {{ heroSection.primaryButton.text }}
-            </button>
-            <button :class="heroSection.secondaryButton.class">
-              {{ heroSection.secondaryButton.text }}
-            </button>
-          </div>
-        </div>
+    <!-- 标题区域：标题 + 搜索框 + 预设关键词 -->
+    <section class="hero min-h-[70vh] bg-gradient-to-br from-primary/20 via-secondary/15 to-accent/10 relative overflow-hidden">
+      <!-- 装饰性背景元素 -->
+      <div class="absolute inset-0 opacity-10">
+        <div class="absolute top-20 left-10 w-32 h-32 bg-primary rounded-full blur-3xl animate-pulse"></div>
+        <div class="absolute bottom-20 right-10 w-40 h-40 bg-secondary rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
-    </div>
-
-    <!-- 特性展示 -->
-    <div class="py-20 bg-base-200">
-      <div class="container mx-auto px-4">
-        <div class="text-center mb-16" v-motion-fade-visible>
-          <h2 class="text-4xl font-bold mb-4">{{ featuresSection.title }}</h2>
-          <p class="text-lg text-base-content/70">{{ featuresSection.subtitle }}</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div v-for="(feature, index) in featuresSection.features" :key="feature.id" class="card bg-base-100 shadow-xl"
-            v-motion-slide-visible-once :delay="feature.delay">
-            <div class="card-body text-center">
-              <div class="text-4xl mb-4">
-                {{ feature.icon }}
+      
+      <div class="hero-content text-center w-full max-w-5xl mx-auto relative z-10">
+        <div class="w-full">
+          <!-- 主标题区 -->
+          <div class="mb-8">
+            <div class="flex items-center justify-center gap-4 mb-4">
+              <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M10 2L3 7v11a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V7l-7-5z"/>
+                </svg>
               </div>
-              <h3 class="card-title justify-center">{{ feature.title }}</h3>
-              <p>{{ feature.description }}</p>
+              <h1 class="text-6xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                智能旅游规划与导航
+              </h1>
+              <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-xl flex items-center justify-center shadow-lg">
+                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
+                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+              </div>
             </div>
+            <p class="text-xl text-base-content/80 mb-2 font-medium">一站式规划行程、查询攻略与活动安排</p>
+            <p class="text-base-content/60">🌟 享受轻松便捷的旅行体验 🌟</p>
+          </div>
+
+          <!-- 搜索框 -->
+          <div class="relative mb-6">
+            <div class="join w-full max-w-3xl mx-auto shadow-2xl">
+              <div class="relative join-item flex-1">
+                <input v-model="searchQuery" type="text" placeholder="🔍 搜索目的地、主题或景点..."
+                       class="input input-bordered input-lg w-full pl-12 bg-base-100/95 backdrop-blur-sm border-2 border-primary/20 focus:border-primary focus:bg-base-100" 
+                       @keyup.enter="handleSearch" />
+                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-base-content/40" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                </svg>
+              </div>
+              <button class="btn btn-primary btn-lg join-item px-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" @click="handleSearch">
+                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
+                </svg>
+                智能搜索
+              </button>
+            </div>
+          </div>
+
+          <!-- 预设关键词 -->
+          <div class="flex flex-wrap gap-3 justify-center">
+            <div class="text-sm text-base-content/60 mb-2 w-full">🔥 热门推荐</div>
+            <button v-for="k in presetKeywords" :key="k" 
+                    class="badge badge-lg badge-outline cursor-pointer hover:badge-primary hover:scale-110 transition-all duration-300 shadow-md hover:shadow-lg px-4 py-3 font-medium"
+                    @click="applyKeyword(k)">{{ k }}</button>
           </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 统计数据 -->
-    <div class="py-20 bg-primary text-primary-content">
+    <!-- 主要内容：目的地推荐 -->
+    <section class="py-16 bg-gradient-to-b from-base-100 to-base-200/50">
       <div class="container mx-auto px-4">
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 text-center">
-          <div v-for="(stat, index) in statsSection.stats" :key="stat.id" v-motion-slide-visible-once-up
-            :delay="stat.delay">
-            <div class="stat">
-              <div class="stat-value text-4xl font-bold">{{ stat.animatedValue }}{{ stat.suffix }}</div>
-              <div class="stat-title text-primary-content/80">{{ stat.title }}</div>
+        <div class="flex items-end justify-between mb-10">
+          <div class="flex items-center gap-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M10 2L3 7v11a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V7l-7-5z"/>
+              </svg>
             </div>
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">旅游目的地推荐</h2>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CTA 区域 -->
-    <div class="py-20 bg-base-100">
-      <div class="container mx-auto px-4 text-center" v-motion-fade-visible>
-        <h2 class="text-4xl font-bold mb-6">{{ ctaSection.title }}</h2>
-        <p class="text-lg mb-8 text-base-content/70">{{ ctaSection.description }}</p>
-        <div class="flex gap-4 justify-center">
-          <button v-for="(button, index) in ctaSection.buttons" :key="index" :class="button.class">
-            {{ button.text }}
+          <button class="btn btn-outline btn-primary gap-2 hover:scale-105 transition-all duration-300" @click="shuffleDestinations">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
+            </svg>
+            换一换
           </button>
         </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <article v-for="(d, index) in destinations" :key="d.id" 
+                   class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group border border-base-300/50 hover:border-primary/30"
+                   :style="{ animationDelay: `${index * 100}ms` }">
+            <div class="card-body p-6">
+              <div class="flex items-start justify-between mb-4">
+                <h3 class="card-title text-2xl font-bold group-hover:text-primary transition-colors duration-300">{{ d.name }}</h3>
+                <div class="w-8 h-8 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+              </div>
+              <p class="text-base-content/70 mb-4 leading-relaxed">{{ d.description }}</p>
+              <div class="card-actions justify-between items-center">
+                <div class="flex flex-wrap gap-2">
+                  <span v-for="t in d.tags" :key="t" 
+                        class="badge badge-outline badge-sm hover:badge-primary transition-all duration-300 cursor-default">{{ t }}</span>
+                </div>
+                <button class="btn btn-primary btn-sm gap-2 hover:scale-105 transition-all duration-300 shadow-lg" @click="goPlanningWith(d.name)">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  </svg>
+                  去规划
+                </button>
+              </div>
+            </div>
+          </article>
+        </div>
       </div>
-    </div>
+    </section>
 
-    <!-- 页脚 -->
-    <footer class="footer footer-center p-10 bg-base-200 text-base-content">
-      <div>
-        <div class="grid grid-flow-col gap-4">
-          <a class="link link-hover">关于我们</a>
-          <a class="link link-hover">联系方式</a>
-          <a class="link link-hover">隐私政策</a>
-          <a class="link link-hover">服务条款</a>
+    <!-- 主要内容：旅游攻略 -->
+    <section class="py-16 bg-gradient-to-br from-base-200/80 via-base-200 to-base-300/50 relative">
+      <!-- 装饰背景 -->
+      <div class="absolute inset-0 opacity-5">
+        <div class="absolute top-10 right-20 w-24 h-24 bg-primary rounded-full blur-2xl"></div>
+        <div class="absolute bottom-10 left-20 w-32 h-32 bg-secondary rounded-full blur-2xl"></div>
+      </div>
+      
+      <div class="container mx-auto px-4 relative z-10">
+        <div class="text-center mb-12">
+          <div class="flex items-center justify-center gap-4 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+              </svg>
+            </div>
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">旅游攻略</h2>
+            <div class="w-10 h-10 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+          <p class="text-base-content/70 text-lg">📚 精选旅游攻略，让你的旅行更精彩</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <article v-for="(g, index) in guides" :key="g.id" 
+                   class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 group border border-base-300/50 hover:border-secondary/30"
+                   :style="{ animationDelay: `${index * 150}ms` }">
+            <div class="card-body p-6">
+              <div class="flex items-start gap-3 mb-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                  <svg class="w-6 h-6 text-secondary" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
+                  </svg>
+                </div>
+                <h3 class="card-title text-xl font-bold group-hover:text-secondary transition-colors duration-300 leading-tight">{{ g.title }}</h3>
+              </div>
+              <p class="text-base-content/70 line-clamp-3 leading-relaxed mb-6">{{ g.summary }}</p>
+              <div class="card-actions justify-end">
+                <button class="btn btn-secondary btn-sm gap-2 hover:scale-105 transition-all duration-300 shadow-lg">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                  </svg>
+                  查看详情
+                </button>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
-      <div>
-        <div class="grid grid-flow-col gap-4">
-          <a class="text-2xl hover:text-primary transition-colors">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z" />
-            </svg>
-          </a>
-          <a class="text-2xl hover:text-primary transition-colors">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M22.46 6c-.77.35-1.6.58-2.46.69.88-.53 1.56-1.37 1.88-2.38-.83.5-1.75.85-2.72 1.05C18.37 4.5 17.26 4 16 4c-2.35 0-4.27 1.92-4.27 4.29 0 .34.04.67.11.98C8.28 9.09 5.11 7.38 3 4.79c-.37.63-.58 1.37-.58 2.15 0 1.49.75 2.81 1.91 3.56-.71 0-1.37-.2-1.95-.5v.03c0 2.08 1.48 3.82 3.44 4.21a4.22 4.22 0 0 1-1.93.07 4.28 4.28 0 0 0 4 2.98 8.521 8.521 0 0 1-5.33 1.84c-.34 0-.68-.02-1.02-.06C3.44 20.29 5.7 21 8.12 21 16 21 20.33 14.46 20.33 8.79c0-.19 0-.37-.01-.56.84-.6 1.56-1.36 2.14-2.23z" />
-            </svg>
-          </a>
-          <a class="text-2xl hover:text-primary transition-colors">
-            <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M12.017 0C5.396 0 .029 5.367.029 11.987c0 5.079 3.158 9.417 7.618 11.174-.105-.949-.199-2.403.041-3.439.219-.937 1.406-5.957 1.406-5.957s-.359-.72-.359-1.781c0-1.663.967-2.911 2.168-2.911 1.024 0 1.518.769 1.518 1.688 0 1.029-.653 2.567-.992 3.992-.285 1.193.6 2.165 1.775 2.165 2.128 0 3.768-2.245 3.768-5.487 0-2.861-2.063-4.869-5.008-4.869-3.41 0-5.409 2.562-5.409 5.199 0 1.033.394 2.143.889 2.741.099.12.112.225.085.345-.09.375-.293 1.199-.334 1.363-.053.225-.172.271-.402.165-1.495-.69-2.433-2.878-2.433-4.646 0-3.776 2.748-7.252 7.92-7.252 4.158 0 7.392 2.967 7.392 6.923 0 4.135-2.607 7.462-6.233 7.462-1.214 0-2.357-.629-2.746-1.378l-.748 2.853c-.271 1.043-1.002 2.35-1.492 3.146C9.57 23.812 10.763 24.009 12.017 24.009c6.624 0 11.99-5.367 11.99-11.988C24.007 5.367 18.641.001.012.001z" />
-            </svg>
-          </a>
+    </section>
+
+    <!-- 主要内容：旅游活动安排 -->
+    <section class="py-16 bg-gradient-to-b from-base-100 to-base-200/30">
+      <div class="container mx-auto px-4">
+        <div class="text-center mb-12">
+          <div class="flex items-center justify-center gap-4 mb-4">
+            <div class="w-10 h-10 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+            <h2 class="text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">旅游活动安排</h2>
+            <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-lg">
+              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+              </svg>
+            </div>
+          </div>
+          <p class="text-base-content/70 text-lg">🎯 精彩活动等你参与，丰富你的旅行体验</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <article v-for="(a, index) in activities" :key="a.id" 
+                   class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 group border border-base-300/50 hover:border-accent/30"
+                   :style="{ animationDelay: `${index * 200}ms` }">
+            <div class="card-body p-6">
+              <div class="flex items-start gap-4 mb-4">
+                <div class="w-14 h-14 bg-gradient-to-br from-accent/20 to-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
+                  <svg class="w-7 h-7 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <h3 class="card-title text-2xl font-bold group-hover:text-accent transition-colors duration-300 mb-2">{{ a.name }}</h3>
+                  <div class="flex flex-col gap-2">
+                    <div class="flex items-center gap-2 text-base-content/70">
+                      <svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
+                      </svg>
+                      <span class="font-medium">{{ a.date }}</span>
+                    </div>
+                    <div class="flex items-center gap-2 text-base-content/70">
+                      <svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
+                      </svg>
+                      <span class="font-medium">{{ a.location }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p class="text-base-content/70 leading-relaxed mb-6">{{ a.desc }}</p>
+              <div class="card-actions justify-end">
+                <button class="btn btn-accent btn-sm gap-2 hover:scale-105 transition-all duration-300 shadow-lg">
+                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
+                  </svg>
+                  加入日程
+                </button>
+              </div>
+            </div>
+          </article>
         </div>
       </div>
-      <div>
-        <p>Copyright © 2024 - {{ serverConfig.VITE_APP_TITLE }}. All rights reserved.</p>
+    </section>
+
+    <!-- 底部信息区域 -->
+    <footer class="bg-base-200 py-8 mt-16">
+      <div class="container mx-auto px-4">
+        <div class="text-center">
+          <h3 class="text-xl font-bold text-base-content mb-4">{{ serverConfig.VITE_APP_TITLE }}</h3>
+          <p class="text-base-content/70">© 2024 智能旅游规划与导航 - 让每一次旅行都充满惊喜</p>
+        </div>
       </div>
     </footer>
   </div>
@@ -114,199 +246,52 @@
 
 <script setup lang="ts">
 import serverConfig from '@/configs'
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
-interface Button {
-  text: string
-  class: string
+const router = useRouter()
+
+// 搜索
+const searchQuery = ref('')
+const presetKeywords = ref<string[]>(['热门: 三亚', '亲子', '美食', '徒步', '海岛', '自驾'])
+const handleSearch = () => {
+  if (!searchQuery.value.trim()) return
+  // 简单跳转到规划页并带上参数
+  router.push({ path: '/planning', query: { q: searchQuery.value } })
+}
+const applyKeyword = (k: string) => {
+  searchQuery.value = k.replace(/^热门:\s*/, '')
+  handleSearch()
 }
 
-interface Feature {
-  id: number
-  icon: string
-  title: string
-  description: string
-  delay: number
+// 目的地推荐
+interface Destination { id: number; name: string; description: string; tags: string[] }
+const destinations = ref<Destination[]>([
+  { id: 1, name: '三亚', description: '阳光海滩与美食天堂', tags: ['海岛', '美食', '亲子'] },
+  { id: 2, name: '成都', description: '慢节奏美食之都，熊猫的故乡', tags: ['美食', '人文'] },
+  { id: 3, name: '张家界', description: '世界自然遗产，绝美奇峰怪石', tags: ['徒步', '摄影'] },
+  { id: 4, name: '杭州', description: '人间天堂西湖畔，茶香与古韵', tags: ['人文', '轻旅'] },
+  { id: 5, name: '敦煌', description: '丝绸之路重镇，莫高窟壁画瑰宝', tags: ['历史', '人文'] },
+  { id: 6, name: '青海湖', description: '高原湖泊，环湖骑行胜地', tags: ['自驾', '骑行'] },
+])
+const shuffleDestinations = () => {
+  destinations.value = [...destinations.value].sort(() => Math.random() - 0.5)
 }
+const goPlanningWith = (name: string) => router.push({ path: '/planning', query: { dest: name } })
 
-interface Stat {
-  id: number
-  animatedValue: any
-  targetValue: number
-  suffix: string
-  title: string
-  delay: number
-}
+// 旅游攻略
+interface Guide { id: number; title: string; summary: string }
+const guides = ref<Guide[]>([
+  { id: 1, title: '三亚自由行全攻略', summary: '机酒选择、景点路线与避坑指南，一文读懂三亚旅行。' },
+  { id: 2, title: '成都美食地图', summary: '火锅、小吃、早茶、川菜馆的地道推荐与排队避坑。' },
+  { id: 3, title: '青海湖环湖路线', summary: '自驾与骑行路线规划、补给点与露营地建议。' },
+])
 
-// 英雄区域数据
-const heroSection: {
-  title: string
-  description: string
-  primaryButton: Button
-  secondaryButton: Button
-} = {
-  title: '欢迎来到现代化管理系统',
-  description: '高效、安全、易用的企业级解决方案，助力您的业务数字化转型',
-  primaryButton: {
-    text: '立即开始',
-    class: 'btn btn-primary btn-lg'
-  },
-  secondaryButton: {
-    text: '了解更多',
-    class: 'btn btn-outline btn-lg'
-  }
-}
-
-// 特性数据
-const featuresSection: {
-  title: string
-  subtitle: string
-  features: Feature[]
-} = {
-  title: '核心特性',
-  subtitle: '为您提供全方位的解决方案',
-  features: [
-    {
-      id: 1,
-      icon: '🚀',
-      title: '高性能',
-      description: '采用最新技术栈，确保系统运行流畅高效',
-      delay: 200
-    },
-    {
-      id: 2,
-      icon: '🔒',
-      title: '安全可靠',
-      description: '多层安全防护，保障您的数据安全无忧',
-      delay: 400
-    },
-    {
-      id: 3,
-      icon: '📱',
-      title: '响应式设计',
-      description: '完美适配各种设备，随时随地轻松使用',
-      delay: 600
-    }
-  ]
-}
-
-// 统计数据
-const statsSection: { stats: Stat[] } = {
-  stats: [
-    {
-      id: 1,
-      animatedValue: ref(0),
-      targetValue: 10000,
-      suffix: '+',
-      title: '活跃用户',
-      delay: 200
-    },
-    {
-      id: 2,
-      animatedValue: ref(0),
-      targetValue: 500,
-      suffix: '+',
-      title: '项目数量',
-      delay: 400
-    },
-    {
-      id: 3,
-      animatedValue: ref(0),
-      targetValue: 99,
-      suffix: '%',
-      title: '系统稳定性',
-      delay: 600
-    },
-    {
-      id: 4,
-      animatedValue: ref(0),
-      targetValue: 95,
-      suffix: '%',
-      title: '客户满意度',
-      delay: 800
-    }
-  ]
-}
-
-// CTA区域数据
-const ctaSection: {
-  title: string
-  description: string
-  buttons: Button[]
-} = {
-  title: '准备开始了吗？',
-  description: '立即体验我们的系统，开启您的数字化转型之旅',
-  buttons: [
-    {
-      text: '免费试用',
-      class: 'btn btn-primary btn-lg'
-    },
-    {
-      text: '联系我们',
-      class: 'btn btn-outline btn-lg'
-    }
-  ]
-}
-
-// 数字动画函数
-const animateNumber = (target: { value: number }, finalValue: number, duration: number = 2000): void => {
-  const startTime = Date.now()
-  const startValue = 0
-
-  const updateNumber = (): void => {
-    const currentTime = Date.now()
-    const elapsed = currentTime - startTime
-    const progress = Math.min(elapsed / duration, 1)
-
-    // 使用缓动函数
-    const easeOutQuart = 1 - Math.pow(1 - progress, 4)
-    target.value = Math.floor(startValue + (finalValue - startValue) * easeOutQuart)
-
-    if (progress < 1) {
-      requestAnimationFrame(updateNumber)
-    }
-  }
-
-  requestAnimationFrame(updateNumber)
-}
-
-onMounted(() => {
-  // 延迟启动数字动画
-  setTimeout(() => {
-    statsSection.stats.forEach(stat => {
-      animateNumber(stat.animatedValue, stat.targetValue)
-    })
-  }, 1000)
-})
+// 活动安排
+interface Activity { id: number; name: string; date: string; location: string; desc: string }
+const activities = ref<Activity[]>([
+  { id: 1, name: '西湖夜游', date: '本周六 19:00', location: '杭州·西湖', desc: '乘船赏夜景，打卡音乐喷泉' },
+  { id: 2, name: '落日骑行', date: '周末 17:30', location: '青海湖东岸', desc: '骑行看日落与星空' },
+  { id: 3, name: '海鲜市集', date: '每日 10:00', location: '三亚·第一市场', desc: '尝遍新鲜海味，教你不被宰' },
+])
 </script>
-
-<style scoped>
-/* 自定义样式 */
-.hero {
-  background-image:
-    radial-gradient(at 40% 20%, hsla(28, 100%, 74%, 1) 0px, transparent 50%),
-    radial-gradient(at 80% 0%, hsla(189, 100%, 56%, 1) 0px, transparent 50%),
-    radial-gradient(at 0% 50%, hsla(355, 100%, 93%, 1) 0px, transparent 50%),
-    radial-gradient(at 80% 50%, hsla(340, 100%, 76%, 1) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, hsla(22, 100%, 77%, 1) 0px, transparent 50%),
-    radial-gradient(at 80% 100%, hsla(242, 100%, 70%, 1) 0px, transparent 50%),
-    radial-gradient(at 0% 0%, hsla(343, 100%, 76%, 1) 0px, transparent 50%);
-}
-
-.card {
-  transition: transform 0.3s ease;
-}
-
-.card:hover {
-  transform: translateY(-5px);
-}
-
-.btn {
-  transition: all 0.3s ease;
-}
-
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-}
-</style>

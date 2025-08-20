@@ -29,6 +29,9 @@ declare module 'vue-router/auto-routes' {
     '/auth/login/': RouteRecordInfo<'/auth/login/', '/auth/login', Record<never, never>, Record<never, never>>,
     '/auth/Register/': RouteRecordInfo<'/auth/Register/', '/auth/Register', Record<never, never>, Record<never, never>>,
     '/knowledge/': RouteRecordInfo<'/knowledge/', '/knowledge', Record<never, never>, Record<never, never>>,
+    '/navigation/': RouteRecordInfo<'/navigation/', '/navigation', Record<never, never>, Record<never, never>>,
+    '/planning/': RouteRecordInfo<'/planning/', '/planning', Record<never, never>, Record<never, never>>,
+    '/profile/': RouteRecordInfo<'/profile/', '/profile', Record<never, never>, Record<never, never>>,
     '/stats/': RouteRecordInfo<'/stats/', '/stats', Record<never, never>, Record<never, never>>,
     '/userInfo/': RouteRecordInfo<'/userInfo/', '/userInfo', Record<never, never>, Record<never, never>>,
   }
@@ -86,6 +89,18 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/knowledge/index.vue': {
       routes: '/knowledge/'
+      views: never
+    }
+    'src/pages/navigation/index.vue': {
+      routes: '/navigation/'
+      views: never
+    }
+    'src/pages/planning/index.vue': {
+      routes: '/planning/'
+      views: never
+    }
+    'src/pages/profile/index.vue': {
+      routes: '/profile/'
       views: never
     }
     'src/pages/stats/index.vue': {
