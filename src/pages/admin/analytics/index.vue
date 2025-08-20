@@ -182,9 +182,9 @@ const getAnalyticsData = async () => {
     loading.value = true
     // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 800))
-    
+
     analyticsData.value = { ...mockAnalyticsData }
-    
+
   } catch (error) {
     console.error('获取分析数据失败:', error)
     ElMessage.error('获取数据失败')
@@ -255,14 +255,8 @@ onMounted(() => {
           </div>
           <div class="header-right">
             <el-space>
-              <el-date-picker
-                v-model="dateRange"
-                type="daterange"
-                range-separator="至"
-                start-placeholder="开始日期"
-                end-placeholder="结束日期"
-                size="default"
-              />
+              <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
+                end-placeholder="结束日期" size="default" />
               <Motion :whileHover="{ scale: 1.05 }" :whileTap="{ scale: 0.95 }">
                 <el-button @click="refreshData" :loading="loading">
                   <el-icon>
@@ -302,7 +296,9 @@ onMounted(() => {
                     <h3 class="metric-title">总用户数</h3>
                     <p class="metric-value">{{ formatNumber(analyticsData.userStats.totalUsers) }}</p>
                     <p class="metric-change positive">
-                      <el-icon><ArrowUp /></el-icon>
+                      <el-icon>
+                        <ArrowUp />
+                      </el-icon>
                       {{ formatPercentage(analyticsData.userStats.userGrowthRate) }}
                     </p>
                   </div>
@@ -329,7 +325,9 @@ onMounted(() => {
                     <h3 class="metric-title">总预订数</h3>
                     <p class="metric-value">{{ formatNumber(analyticsData.routeStats.totalBookings) }}</p>
                     <p class="metric-change positive">
-                      <el-icon><ArrowUp /></el-icon>
+                      <el-icon>
+                        <ArrowUp />
+                      </el-icon>
                       {{ formatPercentage(analyticsData.routeStats.bookingGrowthRate) }}
                     </p>
                   </div>
@@ -356,7 +354,9 @@ onMounted(() => {
                     <h3 class="metric-title">景点总数</h3>
                     <p class="metric-value">{{ formatNumber(analyticsData.attractionStats.totalAttractions) }}</p>
                     <p class="metric-change positive">
-                      <el-icon><ArrowUp /></el-icon>
+                      <el-icon>
+                        <ArrowUp />
+                      </el-icon>
                       {{ formatPercentage(analyticsData.attractionStats.ratingGrowthRate) }}
                     </p>
                   </div>
@@ -383,7 +383,9 @@ onMounted(() => {
                     <h3 class="metric-title">月收入</h3>
                     <p class="metric-value">{{ formatCurrency(analyticsData.revenueStats.monthlyRevenue) }}</p>
                     <p class="metric-change positive">
-                      <el-icon><ArrowUp /></el-icon>
+                      <el-icon>
+                        <ArrowUp />
+                      </el-icon>
                       {{ formatPercentage(analyticsData.revenueStats.revenueGrowthRate) }}
                     </p>
                   </div>
@@ -442,7 +444,8 @@ onMounted(() => {
                       <span class="device-percentage">{{ item.value }}%</span>
                     </div>
                     <div class="device-bar">
-                      <div class="device-progress" :style="{ width: item.value + '%', backgroundColor: item.color }"></div>
+                      <div class="device-progress" :style="{ width: item.value + '%', backgroundColor: item.color }">
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -818,21 +821,21 @@ onMounted(() => {
   .analytics-container {
     padding: 16px;
   }
-  
+
   .page-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
   }
-  
+
   .header-right {
     width: 100%;
   }
-  
+
   .metric-value {
     font-size: 20px;
   }
-  
+
   .chart-container {
     height: 250px;
   }

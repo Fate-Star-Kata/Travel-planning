@@ -302,26 +302,28 @@ onMounted(() => {
                 <el-option label="金卡会员" value="gold" />
                 <el-option label="钻石会员" value="diamond" />
               </el-select>
-              <el-tag v-else :type="row.memberLevel === 'diamond' ? 'warning' : 
-                              row.memberLevel === 'gold' ? 'success' :
-                              row.memberLevel === 'silver' ? 'info' : ''" size="small">
+              <el-tag v-else :type="row.memberLevel === 'diamond' ? 'warning' :
+                row.memberLevel === 'gold' ? 'success' :
+                  row.memberLevel === 'silver' ? 'info' : ''" size="small">
                 {{ row.memberLevel === 'basic' ? '基础会员' :
-                   row.memberLevel === 'silver' ? '银卡会员' :
-                   row.memberLevel === 'gold' ? '金卡会员' : '钻石会员' }}
+                  row.memberLevel === 'silver' ? '银卡会员' :
+                    row.memberLevel === 'gold' ? '金卡会员' : '钻石会员' }}
               </el-tag>
             </template>
           </el-table-column>
 
           <el-table-column label="旅行偏好" prop="travelPreference" min-width="120">
             <template #default="{ row }">
-              <el-input v-if="editableData[row.id]" v-model="editableData[row.id].travelPreference" size="small" placeholder="如：自然风光、历史文化" />
+              <el-input v-if="editableData[row.id]" v-model="editableData[row.id].travelPreference" size="small"
+                placeholder="如：自然风光、历史文化" />
               <span v-else>{{ row.travelPreference || '-' }}</span>
             </template>
           </el-table-column>
 
           <el-table-column label="完成行程" prop="totalTrips" width="100" align="center">
             <template #default="{ row }">
-              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].totalTrips" size="small" :min="0" />
+              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].totalTrips" size="small"
+                :min="0" />
               <span v-else>{{ row.totalTrips || 0 }}次</span>
             </template>
           </el-table-column>
@@ -333,10 +335,10 @@ onMounted(() => {
                 <el-option label="禁用" value="inactive" />
                 <el-option label="冻结" value="frozen" />
               </el-select>
-              <el-tag v-else :type="row.status === 'active' ? 'success' : 
-                              row.status === 'inactive' ? 'danger' : 'warning'" size="small">
+              <el-tag v-else :type="row.status === 'active' ? 'success' :
+                row.status === 'inactive' ? 'danger' : 'warning'" size="small">
                 {{ row.status === 'active' ? '正常' :
-                   row.status === 'inactive' ? '禁用' : '冻结' }}
+                  row.status === 'inactive' ? '禁用' : '冻结' }}
               </el-tag>
             </template>
           </el-table-column>

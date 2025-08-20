@@ -6,7 +6,7 @@ export interface User {
   phone?: string
   avatar?: string
   memberLevel: 'basic' | 'silver' | 'gold' | 'diamond'
-  travelPreference?: string[]
+  travelPreference?: string
   totalTrips: number
   registrationDate: string
   lastLoginDate?: string
