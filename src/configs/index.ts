@@ -202,6 +202,8 @@ const serverConfig = {
 
   VITE_APP_LOGO: VITE_APP_LOGO ? VITE_APP_LOGO : () => null,
 
+  VITE_APP_VERSION: import.meta.env.VITE_APP_VERSION,
+
   SERVER_PATH: import.meta.env.VITE_SERVER_PATH || '/api',
 
   WEBSPCLET_PATH: import.meta.env.VITE_WEBSOCKET_PATH || '/api',
