@@ -138,8 +138,8 @@
                 </div>
               </div>
               
-              <!-- 移动端生成按钮 -->
-              <div class="md:hidden pt-4">
+              <!-- 生成按钮 -->
+              <div class="pt-4">
                 <button class="btn btn-primary w-full gap-2" :class="{ loading: generating }" @click="generatePlan">
                   <svg v-if="!generating" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
@@ -297,6 +297,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { ElMessage } from 'element-plus'
 import type { RouteDay } from '@/types/apis/travel'
 
 const route = useRoute()
@@ -338,7 +339,7 @@ function resetForm() {
 }
 
 async function generatePlan() {
-  if (!form.destination.trim()) return alert('请输入目的地')
+  if (!form.destination.trim()) return ElMessage.warning('请输入目的地')
   generating.value = true
   itinerary.value = []
   // 纯本地模拟生成，保留加载态体验
@@ -380,6 +381,6 @@ function exportPlan() {
 async function copyPlan() {
   const text = itinerary.value.map(d => `第${d.day}天 ${d.title}\n- ${d.activities.join('\n- ')}`).join('\n\n')
   await navigator.clipboard.writeText(text)
-  alert('已复制到剪贴板')
+  ElMessage.success('已复制到剪贴板')
 }
 </script>
