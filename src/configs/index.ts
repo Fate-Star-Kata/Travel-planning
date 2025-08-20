@@ -62,7 +62,7 @@ export const adminMenuItems: AdminHeader[] = [
     id: '2',
     title: '用户管理',
     icon: 'User',
-    path: '/admin/users',
+    path: '/admin/userManage',
   },
   {
     id: '3',
@@ -87,12 +87,14 @@ export const adminMenuItems: AdminHeader[] = [
     title: 'AI模型管理',
     icon: 'MagicStick',
     path: '/admin/ai-models',
+    hide: true
   },
   {
     id: '9',
     title: '系统设置',
     icon: 'Tools',
-    path: '/admin/settings'
+    path: '/admin/settings',
+    hide: true
   }
 ]
 

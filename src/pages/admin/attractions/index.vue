@@ -136,35 +136,35 @@ const getList = async () => {
     loading.value = true
     // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     let filteredData = [...mockData]
-    
+
     // 搜索过滤
     if (params.query) {
-      filteredData = filteredData.filter(item => 
-        item.name.includes(params.query) || 
+      filteredData = filteredData.filter(item =>
+        item.name.includes(params.query) ||
         item.location.includes(params.query) ||
         item.description.includes(params.query)
       )
     }
-    
+
     // 分类过滤
     if (params.category) {
       filteredData = filteredData.filter(item => item.category === params.category)
     }
-    
+
     // 状态过滤
     if (params.status) {
       filteredData = filteredData.filter(item => item.status === params.status)
     }
-    
+
     total.value = filteredData.length
-    
+
     // 分页
     const start = (params.page - 1) * params.page_size
     const end = start + params.page_size
     list.value = filteredData.slice(start, end)
-    
+
   } catch (error) {
     console.error('获取数据失败:', error)
     ElMessage.error('获取景点列表失败')
@@ -327,12 +327,12 @@ const deleteRecord = async (id: number) => {
   try {
     // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 300))
-    
+
     const index = mockData.findIndex(item => item.id === id)
     if (index !== -1) {
       mockData.splice(index, 1)
     }
-    
+
     ElMessage.success('删除景点成功')
     getList()
   } catch (error) {
@@ -372,7 +372,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Motion :initial="pageVariants.initial" :animate="pageVariants.animate" :transition="pageVariants.transition"
+  <Motion :initial="pageVariants.initial" :animate="pageVariants.animate" :transition="pageVariants.transition as any"
     class="attraction-manage">
     <el-card>
       <!-- 搜索和操作区域 -->
@@ -390,22 +390,12 @@ onMounted(() => {
           </el-col>
           <el-col :span="4">
             <el-select v-model="params.category" placeholder="选择分类" clearable>
-              <el-option
-                v-for="item in categoryOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-col>
           <el-col :span="4">
             <el-select v-model="params.status" placeholder="选择状态" clearable>
-              <el-option
-                v-for="item in statusOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-col>
           <el-col :span="10">
@@ -466,12 +456,7 @@ onMounted(() => {
           <el-table-column label="分类" prop="category" width="120" align="center">
             <template #default="{ row }">
               <el-select v-if="editableData[row.id]" v-model="editableData[row.id].category" size="small">
-                <el-option
-                  v-for="item in categoryOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in categoryOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
               <el-tag v-else size="small">
                 {{ getCategoryLabel(row.category) }}
@@ -481,16 +466,15 @@ onMounted(() => {
 
           <el-table-column label="评分" prop="rating" width="100" align="center">
             <template #default="{ row }">
-              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].rating" 
-                size="small" :min="0" :max="5" :step="0.1" :precision="1" />
+              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].rating" size="small" :min="0"
+                :max="5" :step="0.1" :precision="1" />
               <el-rate v-else :model-value="row.rating" disabled show-score />
             </template>
           </el-table-column>
 
           <el-table-column label="门票价格" prop="price" width="120" align="center">
             <template #default="{ row }">
-              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].price" 
-                size="small" :min="0" />
+              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].price" size="small" :min="0" />
               <span v-else>
                 {{ row.price === 0 ? '免费' : `¥${row.price}` }}
               </span>
@@ -506,15 +490,10 @@ onMounted(() => {
           <el-table-column label="状态" prop="status" width="120" align="center">
             <template #default="{ row }">
               <el-select v-if="editableData[row.id]" v-model="editableData[row.id].status" size="small">
-                <el-option
-                  v-for="item in statusOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
-              <el-tag v-else :type="row.status === 'active' ? 'success' : 
-                              row.status === 'inactive' ? 'danger' : 'warning'" size="small">
+              <el-tag v-else :type="row.status === 'active' ? 'success' :
+                row.status === 'inactive' ? 'danger' : 'warning'" size="small">
                 {{ getStatusLabel(row.status) }}
               </el-tag>
             </template>
@@ -551,9 +530,8 @@ onMounted(() => {
                     </el-button>
                   </Motion>
                   <Motion :whileHover="{ scale: 1.1 }" :whileTap="{ scale: 0.9 }">
-                    <el-popconfirm v-if="!isAdd && row.id !== editableData[row.id]?.id"
-                      title="确认删除这个景点吗?" confirm-button-text="确认" cancel-button-text="取消" 
-                      @confirm="deleteRecord(row.id)">
+                    <el-popconfirm v-if="!isAdd && row.id !== editableData[row.id]?.id" title="确认删除这个景点吗?"
+                      confirm-button-text="确认" cancel-button-text="取消" @confirm="deleteRecord(row.id)">
                       <template #reference>
                         <el-button type="danger" size="small">
                           <el-icon>
@@ -575,15 +553,9 @@ onMounted(() => {
       <Motion :initial="{ opacity: 0, y: 20 }" :animate="{ opacity: 1, y: 0 }"
         :transition="{ duration: 0.5, delay: 0.3 }">
         <div class="flex justify-center mt-6">
-          <el-pagination
-            v-model:current-page="params.page"
-            v-model:page-size="params.page_size"
-            :page-sizes="[10, 20, 50, 100]"
-            :total="total"
-            layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
+          <el-pagination v-model:current-page="params.page" v-model:page-size="params.page_size"
+            :page-sizes="[10, 20, 50, 100]" :total="total" layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange" @current-change="handleCurrentChange" />
         </div>
       </Motion>
     </el-card>

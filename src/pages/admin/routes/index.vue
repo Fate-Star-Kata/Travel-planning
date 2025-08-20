@@ -218,40 +218,40 @@ const getList = async () => {
     loading.value = true
     // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 500))
-    
+
     let filteredData = [...mockData]
-    
+
     // 搜索过滤
     if (params.query) {
-      filteredData = filteredData.filter(item => 
-        item.name.includes(params.query) || 
+      filteredData = filteredData.filter(item =>
+        item.name.includes(params.query) ||
         item.description.includes(params.query) ||
         item.tags.some(tag => tag.includes(params.query))
       )
     }
-    
+
     // 类型过滤
     if (params.type) {
       filteredData = filteredData.filter(item => item.type === params.type)
     }
-    
+
     // 难度过滤
     if (params.difficulty) {
       filteredData = filteredData.filter(item => item.difficulty === params.difficulty)
     }
-    
+
     // 状态过滤
     if (params.status) {
       filteredData = filteredData.filter(item => item.status === params.status)
     }
-    
+
     total.value = filteredData.length
-    
+
     // 分页
     const start = (params.page - 1) * params.page_size
     const end = start + params.page_size
     list.value = filteredData.slice(start, end)
-    
+
   } catch (error) {
     console.error('获取数据失败:', error)
     ElMessage.error('获取路线列表失败')
@@ -280,7 +280,7 @@ const resetParams = () => {
 const detail = async (id: number) => {
   const route = list.value.find(item => item.id === id)
   if (route) {
-    const itineraryHtml = route.itinerary.map(day => 
+    const itineraryHtml = route.itinerary.map(day =>
       `<div style="margin-bottom: 15px;">
         <h4>第${day.day}天：${day.title}</h4>
         <p><strong>活动安排：</strong>${day.activities.join('、')}</p>
@@ -288,7 +288,7 @@ const detail = async (id: number) => {
         ${day.accommodation ? `<p><strong>住宿：</strong>${day.accommodation}</p>` : ''}
       </div>`
     ).join('')
-    
+
     ElMessageBox.alert(
       `<div>
         <p><strong>路线名称：</strong>${route.name}</p>
@@ -436,12 +436,12 @@ const deleteRecord = async (id: number) => {
   try {
     // 模拟API调用
     await new Promise(resolve => setTimeout(resolve, 300))
-    
+
     const index = mockData.findIndex(item => item.id === id)
     if (index !== -1) {
       mockData.splice(index, 1)
     }
-    
+
     ElMessage.success('删除路线成功')
     getList()
   } catch (error) {
@@ -487,7 +487,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Motion :initial="pageVariants.initial" :animate="pageVariants.animate" :transition="pageVariants.transition"
+  <Motion :initial="pageVariants.initial" :animate="pageVariants.animate" :transition="pageVariants.transition as any"
     class="route-manage">
     <el-card>
       <!-- 搜索和操作区域 -->
@@ -505,32 +505,17 @@ onMounted(() => {
           </el-col>
           <el-col :span="4">
             <el-select v-model="params.type" placeholder="选择类型" clearable>
-              <el-option
-                v-for="item in typeOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-col>
           <el-col :span="3">
             <el-select v-model="params.difficulty" placeholder="选择难度" clearable>
-              <el-option
-                v-for="item in difficultyOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in difficultyOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-col>
           <el-col :span="3">
             <el-select v-model="params.status" placeholder="选择状态" clearable>
-              <el-option
-                v-for="item in statusOptions"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-              />
+              <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
             </el-select>
           </el-col>
           <el-col :span="8">
@@ -583,8 +568,8 @@ onMounted(() => {
 
           <el-table-column label="行程天数" prop="duration" width="100" align="center">
             <template #default="{ row }">
-              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].duration" 
-                size="small" :min="1" :max="30" />
+              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].duration" size="small" :min="1"
+                :max="30" />
               <el-tag v-else type="info" size="small">
                 {{ row.duration }}天
               </el-tag>
@@ -594,12 +579,7 @@ onMounted(() => {
           <el-table-column label="路线类型" prop="type" width="120" align="center">
             <template #default="{ row }">
               <el-select v-if="editableData[row.id]" v-model="editableData[row.id].type" size="small">
-                <el-option
-                  v-for="item in typeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in typeOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
               <el-tag v-else size="small">
                 {{ getTypeLabel(row.type) }}
@@ -610,15 +590,11 @@ onMounted(() => {
           <el-table-column label="难度等级" prop="difficulty" width="100" align="center">
             <template #default="{ row }">
               <el-select v-if="editableData[row.id]" v-model="editableData[row.id].difficulty" size="small">
-                <el-option
-                  v-for="item in difficultyOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in difficultyOptions" :key="item.value" :label="item.label"
+                  :value="item.value" />
               </el-select>
-              <el-tag v-else :type="row.difficulty === 'easy' ? 'success' : 
-                              row.difficulty === 'medium' ? 'warning' : 'danger'" size="small">
+              <el-tag v-else :type="row.difficulty === 'easy' ? 'success' :
+                row.difficulty === 'medium' ? 'warning' : 'danger'" size="small">
                 {{ getDifficultyLabel(row.difficulty) }}
               </el-tag>
             </template>
@@ -626,8 +602,8 @@ onMounted(() => {
 
           <el-table-column label="预估费用" prop="estimatedCost" width="120" align="center">
             <template #default="{ row }">
-              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].estimatedCost" 
-                size="small" :min="0" />
+              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].estimatedCost" size="small"
+                :min="0" />
               <span v-else>
                 ¥{{ row.estimatedCost.toLocaleString() }}
               </span>
@@ -636,8 +612,8 @@ onMounted(() => {
 
           <el-table-column label="最大团队" prop="maxGroupSize" width="100" align="center">
             <template #default="{ row }">
-              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].maxGroupSize" 
-                size="small" :min="1" :max="100" />
+              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].maxGroupSize" size="small"
+                :min="1" :max="100" />
               <span v-else>{{ row.maxGroupSize }}人</span>
             </template>
           </el-table-column>
@@ -657,15 +633,10 @@ onMounted(() => {
           <el-table-column label="状态" prop="status" width="100" align="center">
             <template #default="{ row }">
               <el-select v-if="editableData[row.id]" v-model="editableData[row.id].status" size="small">
-                <el-option
-                  v-for="item in statusOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value"
-                />
+                <el-option v-for="item in statusOptions" :key="item.value" :label="item.label" :value="item.value" />
               </el-select>
-              <el-tag v-else :type="row.status === 'active' ? 'success' : 
-                              row.status === 'inactive' ? 'danger' : 'info'" size="small">
+              <el-tag v-else :type="row.status === 'active' ? 'success' :
+                row.status === 'inactive' ? 'danger' : 'info'" size="small">
                 {{ getStatusLabel(row.status) }}
               </el-tag>
             </template>
@@ -702,9 +673,8 @@ onMounted(() => {
                     </el-button>
                   </Motion>
                   <Motion :whileHover="{ scale: 1.1 }" :whileTap="{ scale: 0.9 }">
-                    <el-popconfirm v-if="!isAdd && row.id !== editableData[row.id]?.id"
-                      title="确认删除这条路线吗?" confirm-button-text="确认" cancel-button-text="取消" 
-                      @confirm="deleteRecord(row.id)">
+                    <el-popconfirm v-if="!isAdd && row.id !== editableData[row.id]?.id" title="确认删除这条路线吗?"
+                      confirm-button-text="确认" cancel-button-text="取消" @confirm="deleteRecord(row.id)">
                       <template #reference>
                         <el-button type="danger" size="small">
                           <el-icon>
@@ -726,15 +696,9 @@ onMounted(() => {
       <Motion :initial="{ opacity: 0, y: 20 }" :animate="{ opacity: 1, y: 0 }"
         :transition="{ duration: 0.5, delay: 0.3 }">
         <div class="flex justify-center mt-6">
-          <el-pagination
-            v-model:current-page="params.page"
-            v-model:page-size="params.page_size"
-            :page-sizes="[10, 20, 50, 100]"
-            :total="total"
-            layout="total, sizes, prev, pager, next, jumper"
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-          />
+          <el-pagination v-model:current-page="params.page" v-model:page-size="params.page_size"
+            :page-sizes="[10, 20, 50, 100]" :total="total" layout="total, sizes, prev, pager, next, jumper"
+            @size-change="handleSizeChange" @current-change="handleCurrentChange" />
         </div>
       </Motion>
     </el-card>
