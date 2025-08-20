@@ -123,71 +123,37 @@ export const adminMenuItems: AdminHeader[] = [
     id: '2',
     title: '用户管理',
     icon: 'User',
-    path: '/admin/userManage',
-    // children: [
-    //   { id: '2-1', title: '用户列表', icon: 'UserFilled', path: '/admin/userManage' },
-    // ]
+    path: '/admin/users',
   },
   {
     id: '3',
-    title: '内容管理',
-    icon: 'Document',
-    path: '/admin/content',
-    // children: [
-    //   { id: '3-1', title: '通知管理', icon: 'Bell', path: '/admin/content/' },
-    // ]
+    title: '景点管理',
+    icon: 'MapLocation',
+    path: '/admin/attractions',
   },
   {
     id: '4',
-    title: '订单管理',
-    icon: 'ShoppingCart',
-    path: '/admin/orders',
-    hide: true,
-    children: [
-      { id: '4-1', title: '订单列表', icon: 'List', path: '/admin/orders/list' },
-      { id: '4-2', title: '退款管理', icon: 'RefreshLeft', path: '/admin/orders/refunds' }
-    ]
+    title: '路线管理',
+    icon: 'Guide',
+    path: '/admin/routes',
   },
   {
     id: '5',
-    title: '文件系统',
-    icon: 'FolderChecked',
-    path: '/admin/files',
+    title: '数据分析',
+    icon: 'TrendCharts',
+    path: '/admin/analytics',
   },
   {
     id: '6',
-    title: 'AI 助手',
-    icon: 'ChatDotRound',
-    path: '/admin/ai',
-  },
-  {
-    id: '7',
-    title: '财务管理',
-    icon: 'Money',
-    path: '/admin/finance',
-    hide: true,
-    children: [
-      { id: '7-1', title: '收支明细', icon: 'Wallet', path: '/admin/finance/transactions' },
-      { id: '7-2', title: '财务报表', icon: 'DataAnalysis', path: '/admin/finance/reports' }
-    ]
-  },
-  {
-    id: '8',
-    title: '系统设置',
-    icon: 'Setting',
-    path: '/admin/settings',
-    hide: true,
-    children: [
-      { id: '8-1', title: '基础设置', icon: 'Tools', path: '/admin/settings/basic' },
-      { id: '8-2', title: '权限管理', icon: 'Key', path: '/admin/settings/permissions' },
-      { id: '8-3', title: '系统日志', icon: 'DocumentCopy', path: '/admin/settings/logs' }
-    ]
+    title: 'AI模型管理',
+    icon: 'MagicStick',
+    path: '/admin/ai-models',
   },
   {
     id: '9',
-    title: '系统配置',
+    title: '系统设置',
     icon: 'Tools',
-    path: '/admin/systemConfig'
+    path: '/admin/settings'
   }
 ]
 

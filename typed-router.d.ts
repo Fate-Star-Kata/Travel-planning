@@ -20,10 +20,10 @@ declare module 'vue-router/auto-routes' {
   export interface RouteNamedMap {
     '/': RouteRecordInfo<'/', '/', Record<never, never>, Record<never, never>>,
     '/admin/': RouteRecordInfo<'/admin/', '/admin', Record<never, never>, Record<never, never>>,
-    '/admin/ai/': RouteRecordInfo<'/admin/ai/', '/admin/ai', Record<never, never>, Record<never, never>>,
-    '/admin/Content/': RouteRecordInfo<'/admin/Content/', '/admin/Content', Record<never, never>, Record<never, never>>,
+    '/admin/analytics/': RouteRecordInfo<'/admin/analytics/', '/admin/analytics', Record<never, never>, Record<never, never>>,
+    '/admin/attractions/': RouteRecordInfo<'/admin/attractions/', '/admin/attractions', Record<never, never>, Record<never, never>>,
     '/admin/dashboard/': RouteRecordInfo<'/admin/dashboard/', '/admin/dashboard', Record<never, never>, Record<never, never>>,
-    '/admin/files/': RouteRecordInfo<'/admin/files/', '/admin/files', Record<never, never>, Record<never, never>>,
+    '/admin/routes/': RouteRecordInfo<'/admin/routes/', '/admin/routes', Record<never, never>, Record<never, never>>,
     '/admin/systemConfig/': RouteRecordInfo<'/admin/systemConfig/', '/admin/systemConfig', Record<never, never>, Record<never, never>>,
     '/admin/userManage/': RouteRecordInfo<'/admin/userManage/', '/admin/userManage', Record<never, never>, Record<never, never>>,
     '/auth/login/': RouteRecordInfo<'/auth/login/', '/auth/login', Record<never, never>, Record<never, never>>,
@@ -52,20 +52,20 @@ declare module 'vue-router/auto-routes' {
       routes: '/admin/'
       views: never
     }
-    'src/pages/admin/ai/index.vue': {
-      routes: '/admin/ai/'
+    'src/pages/admin/analytics/index.vue': {
+      routes: '/admin/analytics/'
       views: never
     }
-    'src/pages/admin/Content/index.vue': {
-      routes: '/admin/Content/'
+    'src/pages/admin/attractions/index.vue': {
+      routes: '/admin/attractions/'
       views: never
     }
     'src/pages/admin/dashboard/index.vue': {
       routes: '/admin/dashboard/'
       views: never
     }
-    'src/pages/admin/files/index.vue': {
-      routes: '/admin/files/'
+    'src/pages/admin/routes/index.vue': {
+      routes: '/admin/routes/'
       views: never
     }
     'src/pages/admin/systemConfig/index.vue': {
