@@ -1,5 +1,6 @@
 import type { AdminHeader } from '@/types/factory'
 import type { MenuItem } from '@/types/components/header'
+import { defineAsyncComponent } from 'vue';
 
 //获得资源服务地址
 const FileUploadUrl: string = (import.meta.env.VITE_FILE_UPLOAD_URL as string)
@@ -8,7 +9,9 @@ const FileUploadUrl: string = (import.meta.env.VITE_FILE_UPLOAD_URL as string)
 let VITE_APP_LOGO
 
 try {
-  VITE_APP_LOGO = () => import(`@/components/icon/${import.meta.env.VITE_APP_LOGO}.vue`)
+  VITE_APP_LOGO = defineAsyncComponent(() =>
+    import(`@/components/icon/${import.meta.env.VITE_APP_LOGO}.vue`)
+  )
 } catch {
   VITE_APP_LOGO = null
 }

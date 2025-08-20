@@ -13,8 +13,8 @@ import { storeToRefs } from "pinia"
 const { t } = useI18n()
 const expandedMenus = ref<Set<string>>(new Set())
 const icon = serverConfig.VITE_APP_LOGO
-
-console.log(icon());
+// TODO修复icon不显示
+console.log(icon);
 
 const store = useUserStore()
 
@@ -96,7 +96,7 @@ provide('toggleSubmenu', toggleSubmenu)
           <MenuItems :menu-items="menuItems" />
         </ul>
       </div>
-      <component :is="" class="w-10 h-10 mr-2" />
+      <component :is="icon" class="w-10 h-10 mr-2" style="width: 20px;margin-right: 0;" />
       <a href="/" class="btn btn-ghost text-xl">{{ serverConfig.VITE_APP_TITLE }}</a>
       <search />
     </div>
