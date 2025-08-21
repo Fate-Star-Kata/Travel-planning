@@ -25,6 +25,9 @@
           <FavoritesList v-if="currentView === 'favorites'" :favorites-list="favoritesList" :loading="favoritesLoading"
             @view-all-favorites="onOpenFavorites" @explore-attractions="onExploreAttractions"
             @favorite-click="handleFavoriteClick" @remove-favorite="handleRemoveFavorite" />
+
+          <!-- 偏好设置 -->
+          <PreferencesSettings v-if="currentView === 'preferences'" />
         </div>
       </div>
     </div>
@@ -64,6 +67,7 @@ import TripMenu from '@/components/pages/profile/TripMenu.vue'
 import AccountMenu from '@/components/pages/profile/AccountMenu.vue'
 import RecentTrips from '@/components/pages/profile/RecentTrips.vue'
 import FavoritesList from '@/components/pages/profile/FavoritesList.vue'
+import PreferencesSettings from '@/components/pages/profile/PreferencesSettings.vue'
 
 // 用户数据
 const user: UserProfile = reactive({
@@ -81,11 +85,12 @@ const user: UserProfile = reactive({
 const userLoading = ref(false)
 
 // 当前显示的视图
-const currentView = ref<'trips' | 'favorites'>('trips')
+const currentView = ref<'trips' | 'favorites' | 'preferences'>('trips')
 
 const tripMenu: MenuItem[] = reactive([
   { key: 'history', label: '历史行程', icon: '📅' },
   { key: 'favorites', label: '收藏景点', icon: '🔖' },
+  { key: 'preferences', label: '偏好设置', icon: '⚙️' },
 ])
 
 const accountMenu: MenuItem[] = reactive([
@@ -133,6 +138,9 @@ function onMenuClick(item: MenuItem) {
   } else if (item.key === 'history') {
     currentView.value = 'trips'
     showToast('显示历史行程', 'info')
+  } else if (item.key === 'preferences') {
+    currentView.value = 'preferences'
+    showToast('显示偏好设置', 'info')
   } else {
     showToast(`${item.label} 功能正在建设中`, 'info')
   }
@@ -386,5 +394,12 @@ function statusBadgeClass(status: TripStatus) {
     default:
       return 'badge-info'
   }
+}
+
+// 注册组件
+const components = {
+  RecentTrips,
+  FavoritesList,
+  PreferencesSettings
 }
 </script>

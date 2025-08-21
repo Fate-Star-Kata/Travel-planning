@@ -67,6 +67,7 @@ declare module 'vue' {
     PageFooter: typeof import('./src/components/pages/planning/PageFooter.vue')['default']
     PageHeader: typeof import('./src/components/pages/navigation/PageHeader.vue')['default']
     PlanningForm: typeof import('./src/components/pages/planning/PlanningForm.vue')['default']
+    PreferencesSettings: typeof import('./src/components/pages/profile/PreferencesSettings.vue')['default']
     RecentTrips: typeof import('./src/components/pages/profile/RecentTrips.vue')['default']
     ReviewSection: typeof import('./src/components/pages/index/ReviewSection.vue')['default']
     RouteList: typeof import('./src/components/pages/navigation/RouteList.vue')['default']
