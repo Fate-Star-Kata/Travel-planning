@@ -9,6 +9,7 @@ import { defineConfig, loadEnv, mergeConfig } from 'vite'
 import vueDevTools from 'vite-plugin-vue-devtools'
 import { devConfig } from './vite.config.dev'
 import { prodConfig } from './vite.config.prod'
+// import basicSsl from '@vitejs/plugin-basic-ssl'
 import autoprefixer from 'autoprefixer';
 
 
@@ -37,6 +38,7 @@ const baseConfig: UserConfig = {
     Components({
       resolvers: [ElementPlusResolver()],
     }),
+    // basicSsl(),
   ],
   resolve: {
     alias: {
