@@ -108,26 +108,20 @@
       <!-- 地图区域 -->
       <div class="lg:col-span-2">
         <div class="card bg-white shadow-xl border border-gray-100 h-[500px] hover:shadow-2xl transition-all duration-300">
-          <div class="card-body flex items-center justify-center relative overflow-hidden">
-            <!-- 背景装饰 -->
-            <div class="absolute inset-0 bg-gradient-to-br from-blue-50 to-indigo-100 opacity-50"></div>
-            <div class="absolute top-4 right-4 w-20 h-20 bg-blue-200 rounded-full opacity-20"></div>
-            <div class="absolute bottom-4 left-4 w-16 h-16 bg-purple-200 rounded-full opacity-20"></div>
+          <div class="card-body p-0 relative overflow-hidden">
+            <!-- 地图容器 -->
+            <div ref="mapContainer" class="w-full h-full rounded-lg"></div>
             
-            <!-- 地图占位内容 -->
-            <div class="text-center z-10">
-              <div class="w-24 h-24 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-                <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-1.447-.894L15 4m0 13V4m0 0L9 7"></path>
-                </svg>
-              </div>
-              <h3 class="text-xl font-semibold text-gray-700 mb-2">🗺️ 智能地图</h3>
-              <p class="text-gray-500 mb-4">地图功能开发中，可后续接入高德/百度地图</p>
-              <div class="badge badge-primary badge-lg">
-                <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                </svg>
-                即将上线
+            <!-- 地图加载状态 -->
+            <div v-if="!map" class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
+              <div class="text-center">
+                <div class="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                  <svg class="w-8 h-8 text-white animate-spin" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                </div>
+                <p class="text-gray-600">🗺️ 地图加载中...</p>
               </div>
             </div>
           </div>
@@ -238,7 +232,8 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { reactive, ref, onMounted, onUnmounted } from 'vue'
+import AMapLoader from '@amap/amap-jsapi-loader'
 
 // 简单的消息提示函数
 function showMessage(message: string, type: 'success' | 'warning' | 'error' = 'success') {
@@ -288,6 +283,118 @@ const nearby = ref<NearbyItem[]>([])
 
 const loading = reactive({ route: false, nearby: false })
 
+// 地图相关变量
+const mapContainer = ref<HTMLDivElement>()
+let map: any = null
+let driving: any = null
+let walking: any = null
+let transit: any = null
+let geolocation: any = null
+const AMAP_KEY = import.meta.env.VITE_GDMAP_KEY
+
+// 统一设置高德安全配置（必须在 loader 加载前设置）
+function setAmapSecurityConfig() {
+  const securityJsCode = (import.meta as any).env.VITE_AMAP_SECURITY_JS_CODE || (import.meta as any).env.VITE_GDMAP_SECURITY_JS_CODE || (import.meta as any).env.VITE_GDMAP_SECRET
+  const serviceHost = `${window.location.origin}/_AMapService`
+  ;(window as any)._AMapSecurityConfig = securityJsCode
+    ? { serviceHost, securityJsCode }
+    : { serviceHost }
+}
+
+// 初始化地图
+async function initMap() {
+  try {
+    // 直接加载 JSAPI（若控制台开启了安全密钥，需要在加载前注入到 window._AMapSecurityConfig）
+    console.log('AMAP_KEY', AMAP_KEY)
+    setAmapSecurityConfig()
+
+    const AMap = await AMapLoader.load({
+      key: AMAP_KEY,
+      version: '2.0',
+      plugins: ['AMap.Driving', 'AMap.Walking', 'AMap.Transfer', 'AMap.Geolocation', 'AMap.PlaceSearch']
+    })
+
+    // 创建地图实例
+    map = new AMap.Map(mapContainer.value, {
+      zoom: 13,
+      center: [114.057868, 22.543099], // 深圳市中心
+      mapStyle: 'amap://styles/normal'
+    })
+
+    // 初始化路线规划服务
+    driving = new AMap.Driving({
+      map: map,
+      panel: null
+    })
+
+    walking = new AMap.Walking({
+      map: map,
+      panel: null
+    })
+
+    transit = new AMap.Transfer({
+      map: map,
+      panel: null,
+      city: '深圳市'
+    })
+
+    // 初始化定位服务
+    geolocation = new AMap.Geolocation({
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+      convert: true,
+      showButton: false,
+      buttonPosition: 'LB',
+      showMarker: true,
+      showCircle: true,
+      panToLocation: true,
+      zoomToAccuracy: true
+    })
+
+    console.log('地图初始化成功')
+  } catch (error) {
+    console.error('地图加载失败:', error)
+    showMessage('地图加载失败，使用模拟模式', 'warning')
+    initMockMap()
+  }
+}
+
+// 模拟地图模式
+function initMockMap() {
+  if (mapContainer.value) {
+    mapContainer.value.innerHTML = `
+      <div class="flex items-center justify-center h-full bg-gray-100 rounded-lg">
+        <div class="text-center">
+          <div class="text-6xl mb-4">🗺️</div>
+          <div class="text-lg font-medium text-gray-600">模拟地图模式</div>
+          <div class="text-sm text-gray-500 mt-2">API Key配置后可使用真实地图</div>
+        </div>
+      </div>
+    `
+  }
+  
+  // 模拟地图对象
+  map = {
+    setCenter: () => {},
+    getCenter: () => ({ lng: 114.057868, lat: 22.543099 }),
+    clearMap: () => {},
+    destroy: () => {}
+  }
+}
+
+// 清理地图资源
+function destroyMap() {
+  if (map) {
+    map.destroy()
+    map = null
+  }
+  driving = null
+  walking = null
+  transit = null
+  geolocation = null
+}
+
 function swapPoints() {
   ;[form.origin, form.destination] = [form.destination, form.origin]
 }
@@ -309,33 +416,150 @@ async function planRoute() {
     showMessage('请填写起点和终点', 'warning')
     return
   }
+  
+  if (!map) {
+    showMessage('地图未加载完成，请稍后再试', 'warning')
+    return
+  }
+
   loading.route = true
   routes.value = []
-  // 纯本地假数据，模拟网络延时
-  await new Promise((r) => setTimeout(r, 500))
-  const base = [
-    { summary: '路线A（建议）', distance: '12.4 km', duration: '28 分钟', steps: ['从起点出发', '沿XX大道直行 5km', '进入快速路 6km', '到达终点'] },
-    { summary: '路线B（备选）', distance: '13.1 km', duration: '32 分钟', steps: ['从起点出发', '走城市次干道 7km', '右转进入XX路 4km', '到达终点'] },
-  ] as RouteOption[]
-  if (form.mode === 'walking') {
-    routes.value = [
-      { summary: '步行优选', distance: '3.2 km', duration: '45 分钟', steps: ['从起点向东步行 800m', '穿过公园 1.1km', '沿人行道直行 1.3km', '到达终点'] },
-    ]
-  } else if (form.mode === 'transit') {
-    routes.value = [
-      { summary: '地铁直达', distance: '—', duration: '35 分钟', steps: ['步行至A站', '乘坐2号线 3站', '换乘1号线 2站', '步行至终点'] },
-    ]
-  } else {
-    routes.value = base
+
+  try {
+    // 清除之前的路线
+    map.clearMap()
+
+    if (form.mode === 'driving') {
+      driving.search([{ keyword: form.origin }, { keyword: form.destination }], (status: string, result: any) => {
+        if (status === 'complete' && result?.routes?.length) {
+          const route = result.routes[0]
+          routes.value = [{
+            summary: `驾车路线（推荐）`,
+            distance: `${(route.distance / 1000).toFixed(1)} km`,
+            duration: `${Math.ceil(route.time / 60)} 分钟`,
+            steps: (route.steps || []).map((step: any) => step.instruction)
+          }]
+        } else {
+          showMessage('路线规划失败，请检查起点和终点', 'error')
+        }
+        loading.route = false
+      })
+    } else if (form.mode === 'walking') {
+      walking.search([{ keyword: form.origin }, { keyword: form.destination }], (status: string, result: any) => {
+        if (status === 'complete' && result?.routes?.length) {
+          const route = result.routes[0]
+          routes.value = [{
+            summary: `步行路线`,
+            distance: `${(route.distance / 1000).toFixed(1)} km`,
+            duration: `${Math.ceil(route.time / 60)} 分钟`,
+            steps: (route.steps || []).map((step: any) => step.instruction)
+          }]
+        } else {
+          showMessage('步行路线规划失败，请检查起点和终点', 'error')
+        }
+        loading.route = false
+      })
+    } else if (form.mode === 'transit') {
+      transit.search([{ keyword: form.origin }, { keyword: form.destination }], (status: string, result: any) => {
+        if (status === 'complete' && result?.plans?.length) {
+          const plan = result.plans[0]
+          routes.value = [{
+            summary: `公交/地铁路线`,
+            distance: `${(plan.distance / 1000).toFixed(1)} km`,
+            duration: `${Math.ceil(plan.time / 60)} 分钟`,
+            steps: (plan.segments || []).map((segment: any) => {
+              if (segment?.walking) {
+                const d = segment.walking.distance || 0
+                return `步行 ${Math.ceil(d)}米`
+              }
+              if (segment?.bus?.buslines?.length) {
+                return `乘坐${segment.bus.buslines[0].name}`
+              }
+              return '按导航指引前进'
+            })
+          }]
+        } else {
+          showMessage('公交路线规划失败，请检查起点和终点', 'error')
+        }
+        loading.route = false
+      })
+    }
+  } catch (error) {
+    console.error('路线规划错误:', error)
+    showMessage('路线规划失败，请重试', 'error')
+    loading.route = false
   }
-  loading.route = false
 }
 
 async function locate() {
+  if (!map || !geolocation) {
+    showMessage('地图未加载完成，请稍后再试', 'warning')
+    return
+  }
+
   loading.nearby = true
-  // 优先使用浏览器定位，如果不可用则使用默认坐标
-  const doNearby = async () => {
-    await new Promise((r) => setTimeout(r, 500))
+  
+  geolocation.getCurrentPosition((status: string, result: any) => {
+    if (status === 'complete') {
+      const lng = result?.position?.lng ?? result?.position?.getLng?.()
+      const lat = result?.position?.lat ?? result?.position?.getLat?.()
+      if (lng != null && lat != null) {
+        form.origin = `我的位置(${Number(lat).toFixed(4)}, ${Number(lng).toFixed(4)})`
+        // 设置地图中心到当前位置
+        map.setCenter([lng, lat])
+        // 搜索附近的POI
+        searchNearby(lng, lat)
+        showMessage('定位成功', 'success')
+      } else {
+        showMessage('定位信息解析失败，使用默认位置', 'warning')
+        searchNearby(114.057868, 22.543099)
+      }
+    } else {
+      showMessage('定位失败，请检查定位权限', 'error')
+      // 使用默认位置搜索附近POI
+      searchNearby(114.057868, 22.543099)
+    }
+  })
+}
+
+// 搜索附近POI
+async function searchNearby(lng: number, lat: number) {
+  try {
+    setAmapSecurityConfig()
+    const AMap = await AMapLoader.load({
+      key: AMAP_KEY,
+      version: '2.0',
+      plugins: ['AMap.PlaceSearch']
+    })
+    
+    const placeSearch = new AMap.PlaceSearch({
+      pageSize: 10,
+      pageIndex: 1,
+      city: '全国',
+      map: map,
+      panel: null
+    })
+    
+    placeSearch.searchNearBy('', [lng, lat], 5000, (status: string, result: any) => {
+      if (status === 'complete' && result?.poiList?.pois?.length) {
+        nearby.value = result.poiList.pois.slice(0, 6).map((poi: any) => ({
+          name: poi.name,
+          category: (poi.type || '').split(';')[1] || '地点',
+          distance: `${(poi.distance / 1000).toFixed(1)} km`
+        }))
+      } else {
+        // 使用默认数据
+        nearby.value = [
+          { name: '欢乐海岸', category: '景点', distance: '1.2 km' },
+          { name: '深业上城', category: '商圈', distance: '2.5 km' },
+          { name: '深圳博物馆', category: '博物馆', distance: '3.8 km' },
+        ]
+      }
+      loading.nearby = false
+    })
+  } catch (error) {
+    console.error('搜索附近POI失败:', error)
+    // 使用默认数据
     nearby.value = [
       { name: '欢乐海岸', category: '景点', distance: '1.2 km' },
       { name: '深业上城', category: '商圈', distance: '2.5 km' },
@@ -343,36 +567,14 @@ async function locate() {
     ]
     loading.nearby = false
   }
-
-  if ('geolocation' in navigator) {
-    // 为无权限或长时间未响应场景添加超时兜底
-    const timeout = setTimeout(async () => {
-      if (loading.nearby) {
-        showMessage('定位超时，已为你推荐附近热门地点', 'warning')
-        if (!form.origin) form.origin = '我的位置'
-        await doNearby()
-      }
-    }, 1500)
-  
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        clearTimeout(timeout)
-        const { latitude, longitude } = pos.coords
-        form.origin = `我的位置(${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
-        await doNearby()
-      },
-      async () => {
-        clearTimeout(timeout)
-        showMessage('定位失败，已为你推荐附近热门地点', 'error')
-        if (!form.origin) form.origin = '我的位置'
-        await doNearby()
-      },
-      { enableHighAccuracy: false, timeout: 1500, maximumAge: 0 },
-    )
-  } else {
-    showMessage('浏览器不支持定位，已为你推荐附近热门地点', 'warning')
-    if (!form.origin) form.origin = '我的位置'
-    await doNearby()
-  }
 }
+
+// 生命周期钩子
+onMounted(() => {
+  initMap()
+})
+
+onUnmounted(() => {
+  destroyMap()
+})
 </script>

@@ -8,10 +8,13 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    ActivitiesSection: typeof import('./src/components/pages/index/ActivitiesSection.vue')['default']
+    AttractionDetailDialog: typeof import('./src/components/pages/index/AttractionDetailDialog.vue')['default']
     BaseInfo: typeof import('./src/components/pages/userInfo/BaseInfo.vue')['default']
     CaptchaConfig: typeof import('./src/components/pages/admin/systemConfig/CaptchaConfig.vue')['default']
     ChangePassword: typeof import('./src/components/pages/userInfo/ChangePassword.vue')['default']
     ColorThemeSwitch: typeof import('./src/components/layout/btns/ColorThemeSwitch.vue')['default']
+    DestinationsSection: typeof import('./src/components/pages/index/DestinationsSection.vue')['default']
     ElAside: typeof import('element-plus/es')['ElAside']
     ElAvatar: typeof import('element-plus/es')['ElAvatar']
     ElBadge: typeof import('element-plus/es')['ElBadge']
@@ -73,7 +76,9 @@ declare module 'vue' {
     FileUpload: typeof import('./src/components/common/FileUpload/index.vue')['default']
     FileUploadModal: typeof import('./src/components/common/FileUploadModal/index.vue')['default']
     Footer: typeof import('./src/components/layout/Footer.vue')['default']
+    GuidesSection: typeof import('./src/components/pages/index/GuidesSection.vue')['default']
     Header: typeof import('./src/components/layout/Header.vue')['default']
+    HeroSection: typeof import('./src/components/pages/index/HeroSection.vue')['default']
     LanguageSwitch: typeof import('./src/components/layout/btns/LanguageSwitch.vue')['default']
     LanguageSwitcher: typeof import('./src/components/LanguageSwitcher.vue')['default']
     Layout: typeof import('./src/components/layout/index.vue')['default']
@@ -81,6 +86,7 @@ declare module 'vue' {
     MenuItems: typeof import('./src/components/layout/MenuItems.vue')['default']
     Navbar: typeof import('./src/components/pages/admin/navbar.vue')['default']
     NotificationItem: typeof import('./src/components/pages/admin/Content/NotificationItem.vue')['default']
+    ReviewSection: typeof import('./src/components/pages/index/ReviewSection.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     Search: typeof import('./src/components/icon/search.vue')['default']

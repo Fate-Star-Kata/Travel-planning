@@ -44,6 +44,19 @@
         <section class="lg:col-span-1">
           <div class="card bg-base-100 shadow-xl border border-base-300/50 hover:shadow-2xl transition-all duration-300">
             <div class="card-body space-y-6">
+              <!-- 起点输入 -->
+              <div class="form-control">
+                <label class="label">
+                  <span class="label-text font-semibold flex items-center gap-2">
+                    <svg class="w-4 h-4 text-success" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    起点
+                  </span>
+                </label>
+                <input v-model="form.startPoint" type="text" placeholder="如：北京、上海、广州..." class="input input-bordered w-full focus:input-success transition-colors" />
+              </div>
+              
               <!-- 目的地输入 -->
               <div class="form-control">
                 <label class="label">
@@ -303,6 +316,7 @@ import type { RouteDay } from '@/types/apis/travel'
 const route = useRoute()
 
 const form = reactive({
+  startPoint: '',
   destination: '',
   startDate: new Date().toISOString().slice(0, 10),
   days: 3,
@@ -329,6 +343,7 @@ function toggleTag(tag: string) {
 }
 
 function resetForm() {
+  form.startPoint = ''
   form.destination = ''
   form.days = 3
   form.budgetMin = 1000

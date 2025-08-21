@@ -20,25 +20,25 @@ try {
 export const defaultMenuItems: MenuItem[] = [
   {
     id: "home",
-    label: "首页",
+    label: "menu.home",
     href: "/",
     icon: null,
   },
   {
     id: "planning",
-    label: "行程规划",
+    label: "menu.planning",
     href: "/planning",
     icon: null,
   },
   {
     id: "navigation",
-    label: "导航",
+    label: "menu.navigation",
     href: "/navigation",
     icon: null,
   },
   {
     id: "profile",
-    label: "个人中心",
+    label: "menu.profile",
     href: "/profile",
     icon: null,
   },
