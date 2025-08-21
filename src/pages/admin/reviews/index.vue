@@ -265,7 +265,7 @@ onMounted(() => {
     <!-- 统计卡片 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
       <Motion v-for="(stat, index) in formattedStats" :key="stat.title" v-bind="statsCardVariants"
-        :style="{ transitionDelay: `${index * 0.1}s` }">
+        :style="{ transitionDelay: `${index * 0.1}s` }" :whileHover="{ scale: 1.05 }" :whileTap="{ scale: 0.95 }">
         <el-card class="cursor-pointer hover:shadow-lg transition-shadow duration-300">
           <div class="flex items-center justify-between">
             <div class="flex items-center space-x-4">
