@@ -251,7 +251,6 @@ export interface AttractionQueryParams {
   category?: string
   province?: string
   city?: string
-  status?: string
   page: number
   pageSize: number
 }

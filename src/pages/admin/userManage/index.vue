@@ -97,14 +97,9 @@ const handleAdd = () => {
     id: null,
     username: '',
     email: '',
-    phone: '',
-    avatar: '',
-    memberLevel: 'basic',
-    travelPreference: '',
-    totalTrips: 0,
-    registrationDate: new Date().toISOString().split('T')[0],
-    lastLoginDate: '',
-    status: 'active'
+    is_active: false,
+    is_staff: false,
+    is_superuser: false
   }
 
   editableData[newUser.id as any] = cloneDeep(newUser)
@@ -132,18 +127,6 @@ const validateData = (data: User) => {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   if (!emailRegex.test(data.email)) {
     errors.push('邮箱格式不正确')
-  }
-
-  if (data.phone && !/^1[3-9]\d{9}$/.test(data.phone)) {
-    errors.push('手机号格式不正确')
-  }
-
-  if (!['basic', 'silver', 'gold', 'diamond'].includes(data.memberLevel)) {
-    errors.push('会员等级无效')
-  }
-
-  if (!['active', 'inactive', 'frozen'].includes(data.status)) {
-    errors.push('用户状态无效')
   }
 
   return errors
@@ -287,58 +270,32 @@ onMounted(() => {
             </template>
           </el-table-column>
 
-          <el-table-column label="手机号" prop="phone" min-width="120">
+          <el-table-column label="状态" prop="is_active" width="120" align="center">
             <template #default="{ row }">
-              <el-input v-if="editableData[row.id]" v-model="editableData[row.id].phone" size="small" />
-              <span v-else>{{ row.phone || '-' }}</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="会员等级" prop="memberLevel" width="120" align="center">
-            <template #default="{ row }">
-              <el-select v-if="editableData[row.id]" v-model="editableData[row.id].memberLevel" size="small">
-                <el-option label="基础会员" value="basic" />
-                <el-option label="银卡会员" value="silver" />
-                <el-option label="金卡会员" value="gold" />
-                <el-option label="钻石会员" value="diamond" />
-              </el-select>
-              <el-tag v-else :type="row.memberLevel === 'diamond' ? 'warning' :
-                row.memberLevel === 'gold' ? 'success' :
-                  row.memberLevel === 'silver' ? 'info' : ''" size="small">
-                {{ row.memberLevel === 'basic' ? '基础会员' :
-                  row.memberLevel === 'silver' ? '银卡会员' :
-                    row.memberLevel === 'gold' ? '金卡会员' : '钻石会员' }}
+              <el-switch v-if="editableData[row.id]" v-model="editableData[row.id].is_active" active-text="启用"
+                inactive-text="停用" size="small" />
+              <el-tag v-else :type="row.is_active ? 'success' : 'danger'" size="small">
+                {{ row.is_active ? '启用' : '停用' }}
               </el-tag>
             </template>
           </el-table-column>
 
-          <el-table-column label="旅行偏好" prop="travelPreference" min-width="120">
+          <el-table-column label="工作人员权限" prop="is_staff" width="140" align="center">
             <template #default="{ row }">
-              <el-input v-if="editableData[row.id]" v-model="editableData[row.id].travelPreference" size="small"
-                placeholder="如：自然风光、历史文化" />
-              <span v-else>{{ row.travelPreference || '-' }}</span>
+              <el-switch v-if="editableData[row.id]" v-model="editableData[row.id].is_staff" active-text="是"
+                inactive-text="否" size="small" />
+              <el-tag v-else :type="row.is_staff ? 'success' : 'info'" size="small">
+                {{ row.is_staff ? '是' : '否' }}
+              </el-tag>
             </template>
           </el-table-column>
 
-          <el-table-column label="完成行程" prop="totalTrips" width="100" align="center">
+          <el-table-column label="超级管理员权限" prop="is_superuser" width="160" align="center">
             <template #default="{ row }">
-              <el-input-number v-if="editableData[row.id]" v-model="editableData[row.id].totalTrips" size="small"
-                :min="0" />
-              <span v-else>{{ row.totalTrips || 0 }}次</span>
-            </template>
-          </el-table-column>
-
-          <el-table-column label="状态" prop="status" width="100" align="center">
-            <template #default="{ row }">
-              <el-select v-if="editableData[row.id]" v-model="editableData[row.id].status" size="small">
-                <el-option label="正常" value="active" />
-                <el-option label="禁用" value="inactive" />
-                <el-option label="冻结" value="frozen" />
-              </el-select>
-              <el-tag v-else :type="row.status === 'active' ? 'success' :
-                row.status === 'inactive' ? 'danger' : 'warning'" size="small">
-                {{ row.status === 'active' ? '正常' :
-                  row.status === 'inactive' ? '禁用' : '冻结' }}
+              <el-switch v-if="editableData[row.id]" v-model="editableData[row.id].is_superuser" active-text="是"
+                inactive-text="否" size="small" />
+              <el-tag v-else :type="row.is_superuser ? 'warning' : 'info'" size="small">
+                {{ row.is_superuser ? '是' : '否' }}
               </el-tag>
             </template>
           </el-table-column>
