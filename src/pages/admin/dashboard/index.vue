@@ -30,6 +30,7 @@ import {
   View,
   CaretTop
 } from '@element-plus/icons-vue'
+import router from '@/router'
 
 // 响应式数据
 const loading = ref(false)
@@ -474,7 +475,8 @@ const iconVariants = {
                 <span class="font-medium">热门景点排行</span>
                 <el-tag size="small" type="success">TOP 5</el-tag>
               </div>
-              <el-button type="primary" size="small" plain>查看更多</el-button>
+              <el-button type="primary" size="small" @click="router.push('/admin/attractions')" plain>查看更多</el-button>
+
             </div>
           </template>
           <div class="space-y-4" v-loading="hotAttractionsLoading">
@@ -565,13 +567,13 @@ const iconVariants = {
               <div>
                 <p class="text-lg font-bold text-blue-600">{{formattedHotAttractions.reduce((sum, item) => sum +
                   item.visits,
-                  0).toLocaleString() }}</p>
+                  0).toLocaleString()}}</p>
                 <p class="text-xs text-gray-500">总访问量</p>
               </div>
               <div>
                 <p class="text-lg font-bold text-green-600">{{formattedHotAttractions.length > 0 ?
                   (formattedHotAttractions.reduce((sum, item) => sum + item.visits, 0) /
-                  formattedHotAttractions.length).toFixed(0) : '0' }}</p>
+                    formattedHotAttractions.length).toFixed(0) : '0'}}</p>
                 <p class="text-xs text-gray-500">平均访问</p>
               </div>
               <div>

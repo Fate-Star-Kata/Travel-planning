@@ -23,6 +23,7 @@ declare module 'vue-router/auto-routes' {
     '/admin/analytics/': RouteRecordInfo<'/admin/analytics/', '/admin/analytics', Record<never, never>, Record<never, never>>,
     '/admin/attractions/': RouteRecordInfo<'/admin/attractions/', '/admin/attractions', Record<never, never>, Record<never, never>>,
     '/admin/dashboard/': RouteRecordInfo<'/admin/dashboard/', '/admin/dashboard', Record<never, never>, Record<never, never>>,
+    '/admin/reviews/': RouteRecordInfo<'/admin/reviews/', '/admin/reviews', Record<never, never>, Record<never, never>>,
     '/admin/routes/': RouteRecordInfo<'/admin/routes/', '/admin/routes', Record<never, never>, Record<never, never>>,
     '/admin/systemConfig/': RouteRecordInfo<'/admin/systemConfig/', '/admin/systemConfig', Record<never, never>, Record<never, never>>,
     '/admin/userManage/': RouteRecordInfo<'/admin/userManage/', '/admin/userManage', Record<never, never>, Record<never, never>>,
@@ -65,6 +66,10 @@ declare module 'vue-router/auto-routes' {
     }
     'src/pages/admin/dashboard/index.vue': {
       routes: '/admin/dashboard/'
+      views: never
+    }
+    'src/pages/admin/reviews/index.vue': {
+      routes: '/admin/reviews/'
       views: never
     }
     'src/pages/admin/routes/index.vue': {
