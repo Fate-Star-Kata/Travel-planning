@@ -10,7 +10,8 @@ import type {
   GetReviewsRequest,
   GetReviewsResponse,
   CreateReviewRequest,
-  CreateReviewResponse
+  CreateReviewResponse,
+  GetUserProfileResponse
 } from '@/types/Travel-planning/attraction'
 
 /**
@@ -92,5 +93,15 @@ export const createAttractionReview = (attractionId: number, data: CreateReviewR
     url: `/travel/client/attractions/${attractionId}/reviews/`,
     method: 'POST',
     data
+  })
+}
+
+/**
+ * 获取当前用户的个人资料信息
+ */
+export const getUserProfile = (): Promise<GetUserProfileResponse> => {
+  return serviceAxios({
+    url: '/travel/client/user/profile/',
+    method: 'GET'
   })
 }

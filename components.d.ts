@@ -8,6 +8,7 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
+    AccountMenu: typeof import('./src/components/pages/profile/AccountMenu.vue')['default']
     ActivitiesSection: typeof import('./src/components/pages/index/ActivitiesSection.vue')['default']
     AttractionDetailDialog: typeof import('./src/components/pages/index/AttractionDetailDialog.vue')['default']
     AttractionEditDialog: typeof import('./src/components/pages/admin/AttractionEditDialog.vue')['default']
@@ -35,6 +36,7 @@ declare module 'vue' {
     ElSkeleton: typeof import('element-plus/es')['ElSkeleton']
     ElSwitch: typeof import('element-plus/es')['ElSwitch']
     EmailConfig: typeof import('./src/components/pages/admin/systemConfig/EmailConfig.vue')['default']
+    FavoritesList: typeof import('./src/components/pages/profile/FavoritesList.vue')['default']
     FileUpload: typeof import('./src/components/common/FileUpload/index.vue')['default']
     FileUploadModal: typeof import('./src/components/common/FileUploadModal/index.vue')['default']
     Footer: typeof import('./src/components/layout/Footer.vue')['default']
@@ -55,6 +57,7 @@ declare module 'vue' {
     PageFooter: typeof import('./src/components/pages/planning/PageFooter.vue')['default']
     PageHeader: typeof import('./src/components/pages/navigation/PageHeader.vue')['default']
     PlanningForm: typeof import('./src/components/pages/planning/PlanningForm.vue')['default']
+    RecentTrips: typeof import('./src/components/pages/profile/RecentTrips.vue')['default']
     ReviewSection: typeof import('./src/components/pages/index/ReviewSection.vue')['default']
     RouteList: typeof import('./src/components/pages/navigation/RouteList.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
@@ -63,5 +66,7 @@ declare module 'vue' {
     Sidebar: typeof import('./src/components/layout/Sidebar.vue')['default']
     SwitchDark: typeof import('./src/components/icon/switchDark.vue')['default']
     ThemeSwitch: typeof import('./src/components/layout/btns/ThemeSwitch.vue')['default']
+    TripMenu: typeof import('./src/components/pages/profile/TripMenu.vue')['default']
+    UserProfileHeader: typeof import('./src/components/pages/profile/UserProfileHeader.vue')['default']
   }
 }
