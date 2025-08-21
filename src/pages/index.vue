@@ -17,17 +17,7 @@
       @shuffle="shuffleDestinations"
     />
 
-    <!-- 旅游攻略组件 -->
-    <GuidesSection 
-      :guides="guides"
-      @read-guide="(guide) => console.log('阅读攻略:', guide)"
-    />
 
-    <!-- 旅游活动安排组件 -->
-    <ActivitiesSection 
-      :activities="activities"
-      @book-activity="(activity) => console.log('预订活动:', activity)"
-    />
 
     <!-- 底部信息区域 -->
     <footer class="bg-base-200 py-8 mt-16">
@@ -61,15 +51,14 @@ import type { Attraction, AttractionDetail, FavoriteItem } from '@/types/factory
 import { ElMessage, ElDialog } from 'element-plus'
 import HeroSection from '@/components/pages/index/HeroSection.vue'
 import DestinationsSection from '@/components/pages/index/DestinationsSection.vue'
-import GuidesSection from '@/components/pages/index/GuidesSection.vue'
-import ActivitiesSection from '@/components/pages/index/ActivitiesSection.vue'
+
 import AttractionDetailDialog from '@/components/pages/index/AttractionDetailDialog.vue'
 
 const router = useRouter()
 
 // 搜索
 const searchQuery = ref('')
-const presetKeywords = ref<string[]>(['热门: 三亚', '亲子', '美食', '徒步', '海岛', '自驾'])
+const presetKeywords = ref<string[]>(['热门: 北京', '热门: 上海', '热门: 杭州', '热门: 成都', '热门: 西安', '热门: 三亚'])
 const handleSearch = (query?: string) => {
   const searchTerm = query || searchQuery.value
   if (!searchTerm.trim()) return
@@ -89,6 +78,9 @@ const dialogVisible = ref(false)
 const selectedAttraction = ref<AttractionDetail | null>(null)
 const detailLoading = ref(false)
 const favoriteLoading = ref(false)
+
+// 轮换展示相关
+const currentStartIndex = ref(0) // 当前展示的起始索引
 
 // 收藏列表
 const favoritesList = ref<FavoriteItem[]>([])
@@ -238,10 +230,30 @@ const shuffleDestinations = () => {
     // 如果总数不超过6个，就随机排序
     destinations.value = [...allDestinations.value].sort(() => Math.random() - 0.5)
   } else {
-    // 如果总数超过6个，随机选择6个不同的景点
-    const shuffled = [...allDestinations.value].sort(() => Math.random() - 0.5)
-    destinations.value = shuffled.slice(0, 6)
+    // 轮换展示：每次展示接下来的6个景点
+    currentStartIndex.value += 6
+    
+    // 如果超出范围，重新从头开始
+    if (currentStartIndex.value >= allDestinations.value.length) {
+      currentStartIndex.value = 0
+    }
+    
+    // 获取当前批次的6个景点
+    const endIndex = currentStartIndex.value + 6
+    if (endIndex <= allDestinations.value.length) {
+      destinations.value = allDestinations.value.slice(currentStartIndex.value, endIndex)
+    } else {
+      // 如果剩余不足6个，从头补充
+      const remaining = allDestinations.value.slice(currentStartIndex.value)
+      const needed = 6 - remaining.length
+      const fromStart = allDestinations.value.slice(0, needed)
+      destinations.value = [...remaining, ...fromStart]
+      currentStartIndex.value = needed
+    }
   }
+  
+  // 更新收藏状态
+  updateAttractionsWithFavorites()
 }
 const goPlanningWith = (destination: Attraction | string) => {
   if (typeof destination === 'string') {
@@ -258,19 +270,5 @@ onMounted(async () => {
   await loadAttractions()
 })
 
-// 旅游攻略
-interface Guide { id: number; title: string; summary: string }
-const guides = ref<Guide[]>([
-  { id: 1, title: '三亚自由行全攻略', summary: '机酒选择、景点路线与避坑指南，一文读懂三亚旅行。' },
-  { id: 2, title: '成都美食地图', summary: '火锅、小吃、早茶、川菜馆的地道推荐与排队避坑。' },
-  { id: 3, title: '青海湖环湖路线', summary: '自驾与骑行路线规划、补给点与露营地建议。' },
-])
 
-// 活动安排
-interface Activity { id: number; name: string; date: string; location: string; desc: string }
-const activities = ref<Activity[]>([
-  { id: 1, name: '西湖夜游', date: '本周六 19:00', location: '杭州·西湖', desc: '乘船赏夜景，打卡音乐喷泉' },
-  { id: 2, name: '落日骑行', date: '周末 17:30', location: '青海湖东岸', desc: '骑行看日落与星空' },
-  { id: 3, name: '海鲜市集', date: '每日 10:00', location: '三亚·第一市场', desc: '尝遍新鲜海味，教你不被宰' },
-])
 </script>
