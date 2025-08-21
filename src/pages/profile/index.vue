@@ -10,9 +10,6 @@
         <div class="space-y-6 lg:col-span-1">
           <!-- 行程菜单 -->
           <TripMenu :trip-menu="tripMenu" @menu-click="onMenuClick" />
-
-          <!-- 账户菜单 -->
-          <AccountMenu :account-menu="accountMenu" @menu-click="onMenuClick" />
         </div>
 
         <!-- 右侧：动态内容区（占两列） -->
@@ -27,7 +24,10 @@
             @favorite-click="handleFavoriteClick" @remove-favorite="handleRemoveFavorite" />
 
           <!-- 偏好设置 -->
-          <PreferencesSettings v-if="currentView === 'preferences'" />
+        <PreferencesSettings v-else-if="currentView === 'preferences'" />
+        
+        <!-- 账户设置 -->
+        <AccountSettings v-else-if="currentView === 'account'" />
         </div>
       </div>
     </div>
@@ -47,6 +47,7 @@
 
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 import { getFavorites, getAttractionDetail, removeFavorite, getUserProfile } from '@/api/Travel-planning/attraction'
 import { getUserTrips } from '@/api/Travel-planning/travel-plan'
 import type {
@@ -64,10 +65,10 @@ import { ElMessage } from 'element-plus'
 import AttractionDetailDialog from '@/components/pages/index/AttractionDetailDialog.vue'
 import UserProfileHeader from '@/components/pages/profile/UserProfileHeader.vue'
 import TripMenu from '@/components/pages/profile/TripMenu.vue'
-import AccountMenu from '@/components/pages/profile/AccountMenu.vue'
 import RecentTrips from '@/components/pages/profile/RecentTrips.vue'
 import FavoritesList from '@/components/pages/profile/FavoritesList.vue'
 import PreferencesSettings from '@/components/pages/profile/PreferencesSettings.vue'
+import AccountSettings from '@/components/pages/profile/AccountSettings.vue'
 
 // 用户数据
 const user: UserProfile = reactive({
@@ -83,20 +84,16 @@ const user: UserProfile = reactive({
 
 // 加载状态
 const userLoading = ref(false)
+const router = useRouter()
 
 // 当前显示的视图
-const currentView = ref<'trips' | 'favorites' | 'preferences'>('trips')
+const currentView = ref<'trips' | 'favorites' | 'preferences' | 'account'>('trips')
 
 const tripMenu: MenuItem[] = reactive([
   { key: 'history', label: '历史行程', icon: '📅' },
   { key: 'favorites', label: '收藏景点', icon: '🔖' },
   { key: 'preferences', label: '偏好设置', icon: '⚙️' },
-])
-
-const accountMenu: MenuItem[] = reactive([
-  { key: 'profile', label: '个人信息', icon: '👤' },
-  { key: 'preferences', label: '偏好设置', icon: '⚙️' },
-  { key: 'privacy', label: '隐私安全', icon: '🛡️' },
+  { key: 'profile', label: '账户设置', icon: '👤' },
 ])
 
 const recentTrips = ref<TripItem[]>([])
@@ -124,11 +121,16 @@ function showToast(message: string, type: 'info' | 'success' = 'info') {
 
 // 交互事件
 function onEditProfile() {
-  showToast('打开个人资料编辑（示例）', 'info')
+  currentView.value = 'account'
+  showToast('已切换到账户设置', 'success')
 }
 
 function onLogout() {
-  showToast('已退出（示例）', 'success')
+  showToast('已退出登录', 'success')
+  // 跳转到登录页面
+  setTimeout(() => {
+    router.push('/auth/login')
+  }, 1000)
 }
 
 function onMenuClick(item: MenuItem) {
@@ -141,6 +143,9 @@ function onMenuClick(item: MenuItem) {
   } else if (item.key === 'preferences') {
     currentView.value = 'preferences'
     showToast('显示偏好设置', 'info')
+  } else if (item.key === 'profile') {
+    currentView.value = 'account'
+    showToast('已切换到账户设置', 'success')
   } else {
     showToast(`${item.label} 功能正在建设中`, 'info')
   }
@@ -400,6 +405,7 @@ function statusBadgeClass(status: TripStatus) {
 const components = {
   RecentTrips,
   FavoritesList,
-  PreferencesSettings
+  PreferencesSettings,
+  AccountSettings
 }
 </script>

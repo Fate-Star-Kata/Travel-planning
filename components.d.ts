@@ -9,6 +9,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AccountMenu: typeof import('./src/components/pages/profile/AccountMenu.vue')['default']
+    AccountSettings: typeof import('./src/components/pages/profile/AccountSettings.vue')['default']
     ActivitiesSection: typeof import('./src/components/pages/index/ActivitiesSection.vue')['default']
     AttractionDetailDialog: typeof import('./src/components/pages/index/AttractionDetailDialog.vue')['default']
     AttractionEditDialog: typeof import('./src/components/pages/admin/AttractionEditDialog.vue')['default']
