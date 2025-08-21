@@ -5,6 +5,7 @@
       <el-button 
         type="primary" 
         icon="Download" 
+        :disabled="!hasData || loading"
         @click="exportToPDF"
       >
         下载PDF
@@ -12,12 +13,14 @@
       <el-button 
         type="success" 
         icon="Check" 
+        :disabled="!hasData || loading"
         @click="$emit('save')"
       >
         保存行程
       </el-button>
       <el-button 
         icon="DocumentCopy" 
+        :disabled="!hasData || loading"
         @click="$emit('copy')"
       >
         复制行程
