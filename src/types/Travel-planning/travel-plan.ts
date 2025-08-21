@@ -1,0 +1,137 @@
+// 旅行计划相关的类型定义
+
+// 基础响应接口
+export interface ApiResponse<T = any> {
+  code: number
+  msg: string
+  data: T
+}
+
+// 旅行计划请求参数
+export interface TravelPlanRequest {
+  destination: string // 目的地
+  start_date: string // 开始日期 YYYY-MM-DD
+  end_date: string // 结束日期 YYYY-MM-DD
+  budget: number // 预算金额
+  preferences: string[] // 旅行偏好
+  travel_style: string // 旅行风格
+  max_attractions_per_day: number // 每日最大景点数
+  transportation: string // 交通方式
+  accessibility_needs: boolean // 无障碍需求
+}
+
+// 景点信息
+export interface AttractionInfo {
+  attraction_id: number
+  attraction_name: string
+  planned_start_time: string // 计划开始时间 HH:mm
+  planned_duration: number // 计划游览时长（分钟）
+  reason: string // 推荐理由
+  price: number // 门票价格
+  rating: number // 评分
+}
+
+// 每日行程
+export interface DayPlan {
+  day_number: number
+  date: string // YYYY-MM-DD
+  theme: string // 当日主题
+  notes: string // 当日备注
+  attractions: AttractionInfo[]
+}
+
+// 预算明细
+export interface BudgetBreakdown {
+  accommodation: number // 住宿费用
+  food: number // 餐饮费用
+  transportation: number // 交通费用
+  tickets: number // 门票费用
+  others: number // 其他费用
+}
+
+// 旅行计划详情
+export interface TripPlan {
+  title: string // 行程标题
+  destination_city: string // 目的地城市
+  start_date: string // 开始日期
+  end_date: string // 结束日期
+  traveler_count: number // 旅行人数
+  estimated_budget: number // 预估总预算
+  overview: string // 行程概述
+  days: DayPlan[] // 每日行程安排
+  budget_breakdown: BudgetBreakdown // 预算明细
+  tips: string[] // 旅行小贴士
+}
+
+// 旅行计划响应
+export interface TravelPlanResponse {
+  trip_plan: TripPlan
+  total_attractions: number // 总景点数量
+}
+
+// 表单数据接口
+export interface PlanningFormData {
+  destination: string // 目的地
+  start_date: string // 开始日期
+  end_date: string // 结束日期
+  budget: number // 预算金额
+  preferences: string[] // 旅行偏好
+  travel_style: string // 旅行风格
+  max_attractions_per_day: number // 每日最大景点数
+  transportation: string // 交通方式
+  accessibility_needs: boolean // 无障碍需求
+}
+
+// 行程展示数据类型（前端使用）
+export interface RouteDay {
+  day: number
+  title: string
+  activities: string[]
+  meals?: string[]
+  accommodation?: string
+  transportation?: string
+  notes?: string
+}
+
+// 错误响应类型
+export interface ErrorResponse {
+  code: number
+  msg: string
+  data?: any
+}
+
+// 旅行偏好选项
+export const TRAVEL_PREFERENCES = [
+  '历史文化',
+  '自然风光', 
+  '美食体验',
+  '购物娱乐',
+  '休闲度假',
+  '探险刺激',
+  '亲子游乐',
+  '摄影采风',
+  '民俗体验',
+  '宗教朝圣'
+] as const
+
+// 旅行风格选项
+export const TRAVEL_STYLES = [
+  '休闲',
+  '深度',
+  '快节奏',
+  '奢华',
+  '经济'
+] as const
+
+// 交通方式选项
+export const TRANSPORTATION_OPTIONS = [
+  '公共交通',
+  '自驾',
+  '步行',
+  '出租车',
+  '共享单车'
+] as const
+
+export type TravelPreference = typeof TRAVEL_PREFERENCES[number]
+export type TravelStyle = typeof TRAVEL_STYLES[number]
+export type TransportationOption = typeof TRANSPORTATION_OPTIONS[number]
