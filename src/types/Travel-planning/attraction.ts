@@ -169,3 +169,69 @@ export interface ApiResponse<T = any> {
   msg: string
   data?: T
 }
+
+// 用户信息接口（API返回的用户信息）
+export interface UserInfo {
+  id: number
+  username: string
+  email: string
+  date_joined: string
+}
+
+// 用户统计信息（API返回的统计数据）
+export interface UserStatistics {
+  trip_count: number
+  favorite_count: number
+  review_count: number
+}
+
+// 用户偏好设置
+export interface UserPreferences {
+  // 根据实际需求定义偏好设置字段
+  [key: string]: any
+}
+
+// 获取用户个人资料响应
+export interface GetUserProfileResponse {
+  code: number
+  msg: string
+  data: {
+    user_info: UserInfo
+    statistics: UserStatistics
+    preferences: UserPreferences | null
+  }
+}
+
+// 用户统计信息
+export interface UserStats {
+  completedTrips: number
+  visitedCities: number
+  favoritesCount: number
+}
+
+// 用户资料
+export interface UserProfile {
+  name: string
+  avatar: string
+  joinDate: string
+  stats: UserStats
+}
+
+// 菜单项
+export interface MenuItem {
+  key: string
+  label: string
+  icon: string
+}
+
+// 行程状态
+export type TripStatus = 'completed' | 'ongoing' | 'upcoming' | 'planned'
+
+// 行程项
+export interface TripItem {
+  id: string
+  title: string
+  dateRange: string
+  status: TripStatus
+  cover: string
+}
