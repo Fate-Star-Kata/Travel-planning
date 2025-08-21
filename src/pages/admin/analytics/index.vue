@@ -2,70 +2,42 @@
 import { ref, reactive, onMounted, computed } from 'vue'
 import { Motion } from 'motion-v'
 import { ElMessage } from 'element-plus'
+import { getDashboardStats, getHotAttractions, getUserGrowthData } from '@/api/admin/dashboard'
+import VChart from 'vue-echarts'
+import { use } from 'echarts/core'
+import { CanvasRenderer } from 'echarts/renderers'
+import { LineChart } from 'echarts/charts'
+import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
+
+// 注册 ECharts 组件
+use([
+  CanvasRenderer,
+  LineChart,
+  TitleComponent,
+  TooltipComponent,
+  LegendComponent,
+  GridComponent
+])
+import type {
+  DashboardStatsData,
+  HotAttractionItem,
+  UserGrowthChartItem,
+  UserStats as ApiUserStats,
+  AttractionStats as ApiAttractionStats,
+  TripStats,
+  ReviewStats,
+  RevenueStats as ApiRevenueStats
+} from '@/types/apis/dashboard'
 
 // 数据统计接口定义
 interface AnalyticsData {
-  userStats: UserStats
-  routeStats: RouteStats
-  attractionStats: AttractionStats
-  revenueStats: RevenueStats
-  userGrowthTrend: TrendData[]
-  popularRoutes: PopularRoute[]
-  userDistribution: UserDistribution[]
-  deviceStats: DeviceStats
-}
-
-interface UserStats {
-  totalUsers: number
-  activeUsers: number
-  newUsersToday: number
-  userGrowthRate: number
-}
-
-interface RouteStats {
-  totalRoutes: number
-  activeRoutes: number
-  totalBookings: number
-  bookingGrowthRate: number
-}
-
-interface AttractionStats {
-  totalAttractions: number
-  popularAttractions: number
-  averageRating: number
-  ratingGrowthRate: number
-}
-
-interface RevenueStats {
-  totalRevenue: number
-  monthlyRevenue: number
-  revenueGrowthRate: number
-  averageOrderValue: number
-}
-
-interface TrendData {
-  date: string
-  value: number
-}
-
-interface PopularRoute {
-  id: number
-  name: string
-  bookings: number
-  revenue: number
-  rating: number
-}
-
-interface UserDistribution {
-  region: string
-  count: number
-  percentage: number
-}
-
-interface DeviceStats {
-  mobile: number
-  desktop: number
-  tablet: number
+  userStats: ApiUserStats
+  tripStats: TripStats
+  attractionStats: ApiAttractionStats
+  reviewStats: ReviewStats
+  revenueStats: ApiRevenueStats
+  userGrowthTrend: UserGrowthChartItem[]
+  hotAttractions: HotAttractionItem[]
 }
 
 // 动画配置
@@ -86,104 +58,62 @@ const loading = ref(false)
 const dateRange = ref<[Date, Date]>([new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), new Date()])
 const analyticsData = ref<AnalyticsData>({
   userStats: {
-    totalUsers: 0,
-    activeUsers: 0,
-    newUsersToday: 0,
-    userGrowthRate: 0
+    total: 0,
+    active: 0,
+    new_this_month: 0,
+    inactive: 0
   },
-  routeStats: {
-    totalRoutes: 0,
-    activeRoutes: 0,
+  tripStats: {
+    total: 0,
     totalBookings: 0,
-    bookingGrowthRate: 0
+    completed: 0,
+    ongoing: 0,
+    planning: 0
   },
   attractionStats: {
-    totalAttractions: 0,
-    popularAttractions: 0,
-    averageRating: 0,
-    ratingGrowthRate: 0
+    total: 0,
+    active: 0,
+    inactive: 0,
+    avg_rating: 0
+  },
+  reviewStats: {
+    total: 0,
+    avg_rating: 0
   },
   revenueStats: {
-    totalRevenue: 0,
-    monthlyRevenue: 0,
-    revenueGrowthRate: 0,
-    averageOrderValue: 0
+    total: 0
   },
   userGrowthTrend: [],
-  popularRoutes: [],
-  userDistribution: [],
-  deviceStats: {
-    mobile: 0,
-    desktop: 0,
-    tablet: 0
-  }
+  hotAttractions: []
 })
 
-// 模拟数据
-const mockAnalyticsData: AnalyticsData = {
-  userStats: {
-    totalUsers: 15420,
-    activeUsers: 8960,
-    newUsersToday: 156,
-    userGrowthRate: 12.5
-  },
-  routeStats: {
-    totalRoutes: 245,
-    activeRoutes: 198,
-    totalBookings: 3420,
-    bookingGrowthRate: 18.3
-  },
-  attractionStats: {
-    totalAttractions: 1280,
-    popularAttractions: 89,
-    averageRating: 4.6,
-    ratingGrowthRate: 5.2
-  },
-  revenueStats: {
-    totalRevenue: 2580000,
-    monthlyRevenue: 456000,
-    revenueGrowthRate: 15.8,
-    averageOrderValue: 754
-  },
-  userGrowthTrend: [
-    { date: '2024-01-01', value: 12500 },
-    { date: '2024-01-05', value: 12800 },
-    { date: '2024-01-10', value: 13200 },
-    { date: '2024-01-15', value: 13800 },
-    { date: '2024-01-20', value: 14500 },
-    { date: '2024-01-25', value: 15100 },
-    { date: '2024-01-30', value: 15420 }
-  ],
-  popularRoutes: [
-    { id: 1, name: '北京经典三日游', bookings: 456, revenue: 547200, rating: 4.8 },
-    { id: 2, name: '杭州西湖深度游', bookings: 389, revenue: 311200, rating: 4.6 },
-    { id: 3, name: '张家界探险之旅', bookings: 234, revenue: 514800, rating: 4.9 },
-    { id: 4, name: '厦门鼓浪屿文艺游', bookings: 298, revenue: 238400, rating: 4.5 },
-    { id: 5, name: '云南大理丽江游', bookings: 345, revenue: 482300, rating: 4.7 }
-  ],
-  userDistribution: [
-    { region: '华东地区', count: 4620, percentage: 30.0 },
-    { region: '华北地区', count: 3850, percentage: 25.0 },
-    { region: '华南地区', count: 2310, percentage: 15.0 },
-    { region: '西南地区', count: 2156, percentage: 14.0 },
-    { region: '华中地区', count: 1540, percentage: 10.0 },
-    { region: '其他地区', count: 944, percentage: 6.0 }
-  ],
-  deviceStats: {
-    mobile: 68.5,
-    desktop: 25.2,
-    tablet: 6.3
-  }
-}
+
 
 // 获取分析数据
 const getAnalyticsData = async () => {
   try {
     loading.value = true
-    // 模拟API调用
-    await new Promise(resolve => setTimeout(resolve, 800))
 
-    analyticsData.value = { ...mockAnalyticsData }
+    // 并行获取所有数据
+    const [statsResponse, attractionsResponse, userGrowthResponse] = await Promise.all([
+      getDashboardStats(),
+      getHotAttractions(),
+      getUserGrowthData()
+    ])
+
+    // 更新数据
+    analyticsData.value = {
+      userStats: statsResponse.data.users,
+      tripStats: {
+        ...statsResponse.data.trips,
+        totalBookings: statsResponse.data.trips?.totalBookings || statsResponse.data.trips?.total || 0
+      },
+      attractionStats: statsResponse.data.attractions,
+      reviewStats: statsResponse.data.reviews,
+      revenueStats: statsResponse.data.revenue,
+      userGrowthTrend: userGrowthResponse.data.chart_data,
+      hotAttractions: attractionsResponse.data.attractions.sort((a: any, b: any) => (b.visit_count || 0) - (a.visit_count || 0))
+    }
 
   } catch (error) {
     console.error('获取分析数据失败:', error)
@@ -204,15 +134,33 @@ const exportReport = () => {
 }
 
 // 格式化数字
-const formatNumber = (num: number) => {
+const formatNumber = (num: number | undefined) => {
+  if (num === undefined || num === null) {
+    return '0'
+  }
   if (num >= 10000) {
     return (num / 10000).toFixed(1) + '万'
   }
   return num.toLocaleString()
 }
 
+// 获取位置文本
+const getLocationText = (row: any) => {
+  const parts = []
+  if (row.city) parts.push(row.city)
+  if (row.province && row.province !== row.city) parts.push(row.province)
+  if (parts.length === 0 && row.address) {
+    // 如果没有城市和省份信息，使用地址的前20个字符
+    return row.address.length > 20 ? row.address.substring(0, 20) + '...' : row.address
+  }
+  return parts.join(', ') || '未知位置'
+}
+
 // 格式化金额
-const formatCurrency = (amount: number) => {
+const formatCurrency = (amount: number | undefined) => {
+  if (amount === undefined || amount === null) {
+    return '¥0'
+  }
   if (amount >= 10000) {
     return '¥' + (amount / 10000).toFixed(1) + '万'
   }
@@ -220,19 +168,87 @@ const formatCurrency = (amount: number) => {
 }
 
 // 格式化百分比
-const formatPercentage = (rate: number) => {
+const formatPercentage = (rate: number | undefined) => {
+  if (rate === undefined || rate === null) {
+    return '0%'
+  }
   const sign = rate >= 0 ? '+' : ''
   return sign + rate.toFixed(1) + '%'
 }
 
-// 计算设备使用统计
-const deviceChartData = computed(() => {
-  const { mobile, desktop, tablet } = analyticsData.value.deviceStats
-  return [
-    { name: '移动端', value: mobile, color: '#409EFF' },
-    { name: '桌面端', value: desktop, color: '#67C23A' },
-    { name: '平板端', value: tablet, color: '#E6A23C' }
-  ]
+// 用户增长图表配置
+const userGrowthChartOption = computed(() => {
+  const chartData = analyticsData.value.userGrowthTrend || []
+
+  const dates = chartData.map(item => {
+    const d = new Date(item.date)
+    return `${d.getMonth() + 1}/${d.getDate()}`
+  })
+  const counts = chartData.map(item => item.count)
+
+  return {
+    title: {
+      text: '用户增长趋势（最近30天）',
+      textStyle: {
+        fontSize: 14,
+        fontWeight: 'normal'
+      }
+    },
+    tooltip: {
+      trigger: 'axis',
+      formatter: (params: any) => {
+        const data = params[0]
+        return `${data.axisValue}<br/>新增用户: ${data.value}人`
+      }
+    },
+    grid: {
+      left: '3%',
+      right: '4%',
+      bottom: '3%',
+      containLabel: true
+    },
+    xAxis: {
+      type: 'category',
+      data: dates,
+      axisLabel: {
+        fontSize: 12
+      }
+    },
+    yAxis: {
+      type: 'value',
+      axisLabel: {
+        fontSize: 12
+      }
+    },
+    series: [{
+      name: '新增用户',
+      type: 'line',
+      data: counts,
+      smooth: true,
+      lineStyle: {
+        color: '#409EFF'
+      },
+      itemStyle: {
+        color: '#409EFF'
+      },
+      areaStyle: {
+        color: {
+          type: 'linear',
+          x: 0,
+          y: 0,
+          x2: 0,
+          y2: 1,
+          colorStops: [{
+            offset: 0,
+            color: 'rgba(64, 158, 255, 0.3)'
+          }, {
+            offset: 1,
+            color: 'rgba(64, 158, 255, 0.1)'
+          }]
+        }
+      }
+    }]
+  }
 })
 
 // 组件挂载时获取数据
@@ -242,7 +258,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <Motion :initial="pageVariants.initial" :animate="pageVariants.animate" :transition="pageVariants.transition"
+  <Motion :initial="pageVariants.initial" :animate="pageVariants.animate" :transition="pageVariants.transition as any"
     class="analytics-page">
     <div class="analytics-container">
       <!-- 页面头部 -->
@@ -284,7 +300,7 @@ onMounted(() => {
         <el-row :gutter="24" class="metrics-row">
           <!-- 用户统计 -->
           <el-col :xs="24" :sm="12" :md="6">
-            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.1 }">
+            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.1 } as any">
               <el-card class="metric-card user-card" shadow="hover">
                 <div class="metric-content">
                   <div class="metric-icon">
@@ -294,18 +310,18 @@ onMounted(() => {
                   </div>
                   <div class="metric-info">
                     <h3 class="metric-title">总用户数</h3>
-                    <p class="metric-value">{{ formatNumber(analyticsData.userStats.totalUsers) }}</p>
+                    <p class="metric-value">{{ formatNumber(analyticsData.userStats.total) }}</p>
                     <p class="metric-change positive">
                       <el-icon>
                         <ArrowUp />
                       </el-icon>
-                      {{ formatPercentage(analyticsData.userStats.userGrowthRate) }}
+                      {{ formatPercentage(0) }}
                     </p>
                   </div>
                 </div>
                 <div class="metric-detail">
-                  <span>活跃用户: {{ formatNumber(analyticsData.userStats.activeUsers) }}</span>
-                  <span>今日新增: {{ analyticsData.userStats.newUsersToday }}</span>
+                  <span>活跃用户: {{ formatNumber(analyticsData.userStats.active) }}</span>
+                  <span>本月新增: {{ analyticsData.userStats.new_this_month }}</span>
                 </div>
               </el-card>
             </Motion>
@@ -313,7 +329,7 @@ onMounted(() => {
 
           <!-- 路线统计 -->
           <el-col :xs="24" :sm="12" :md="6">
-            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.2 }">
+            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.2 } as any">
               <el-card class="metric-card route-card" shadow="hover">
                 <div class="metric-content">
                   <div class="metric-icon">
@@ -323,18 +339,18 @@ onMounted(() => {
                   </div>
                   <div class="metric-info">
                     <h3 class="metric-title">总预订数</h3>
-                    <p class="metric-value">{{ formatNumber(analyticsData.routeStats.totalBookings) }}</p>
+                    <p class="metric-value">{{ formatNumber(analyticsData.tripStats.totalBookings) }}</p>
                     <p class="metric-change positive">
                       <el-icon>
                         <ArrowUp />
                       </el-icon>
-                      {{ formatPercentage(analyticsData.routeStats.bookingGrowthRate) }}
+                      {{ formatPercentage(0) }}
                     </p>
                   </div>
                 </div>
                 <div class="metric-detail">
-                  <span>总路线: {{ analyticsData.routeStats.totalRoutes }}</span>
-                  <span>活跃路线: {{ analyticsData.routeStats.activeRoutes }}</span>
+                  <span>总行程: {{ analyticsData.tripStats.total }}</span>
+                  <span>进行中: {{ analyticsData.tripStats.ongoing }}</span>
                 </div>
               </el-card>
             </Motion>
@@ -342,7 +358,7 @@ onMounted(() => {
 
           <!-- 景点统计 -->
           <el-col :xs="24" :sm="12" :md="6">
-            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.3 }">
+            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.3 } as any">
               <el-card class="metric-card attraction-card" shadow="hover">
                 <div class="metric-content">
                   <div class="metric-icon">
@@ -352,18 +368,18 @@ onMounted(() => {
                   </div>
                   <div class="metric-info">
                     <h3 class="metric-title">景点总数</h3>
-                    <p class="metric-value">{{ formatNumber(analyticsData.attractionStats.totalAttractions) }}</p>
+                    <p class="metric-value">{{ formatNumber(analyticsData.attractionStats.total) }}</p>
                     <p class="metric-change positive">
                       <el-icon>
                         <ArrowUp />
                       </el-icon>
-                      {{ formatPercentage(analyticsData.attractionStats.ratingGrowthRate) }}
+                      {{ formatPercentage(0) }}
                     </p>
                   </div>
                 </div>
                 <div class="metric-detail">
-                  <span>热门景点: {{ analyticsData.attractionStats.popularAttractions }}</span>
-                  <span>平均评分: {{ analyticsData.attractionStats.averageRating }}</span>
+                  <span>活跃景点: {{ analyticsData.attractionStats.active }}</span>
+                  <span>平均评分: {{ analyticsData.attractionStats.avg_rating }}</span>
                 </div>
               </el-card>
             </Motion>
@@ -371,7 +387,7 @@ onMounted(() => {
 
           <!-- 收入统计 -->
           <el-col :xs="24" :sm="12" :md="6">
-            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.4 }">
+            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.4 } as any">
               <el-card class="metric-card revenue-card" shadow="hover">
                 <div class="metric-content">
                   <div class="metric-icon">
@@ -381,18 +397,18 @@ onMounted(() => {
                   </div>
                   <div class="metric-info">
                     <h3 class="metric-title">月收入</h3>
-                    <p class="metric-value">{{ formatCurrency(analyticsData.revenueStats.monthlyRevenue) }}</p>
+                    <p class="metric-value">{{ formatCurrency(analyticsData.revenueStats.total) }}</p>
                     <p class="metric-change positive">
                       <el-icon>
                         <ArrowUp />
                       </el-icon>
-                      {{ formatPercentage(analyticsData.revenueStats.revenueGrowthRate) }}
+                      {{ formatPercentage(0) }}
                     </p>
                   </div>
                 </div>
                 <div class="metric-detail">
-                  <span>总收入: {{ formatCurrency(analyticsData.revenueStats.totalRevenue) }}</span>
-                  <span>客单价: {{ formatCurrency(analyticsData.revenueStats.averageOrderValue) }}</span>
+                  <span>总收入: {{ formatCurrency(analyticsData.revenueStats.total) }}</span>
+                  <span>客单价: {{ formatCurrency(0) }}</span>
                 </div>
               </el-card>
             </Motion>
@@ -415,37 +431,39 @@ onMounted(() => {
               </template>
               <div class="chart-container" v-loading="loading">
                 <div class="trend-chart">
-                  <div class="chart-placeholder">
-                    <el-icon size="48" color="#C0C4CC">
-                      <TrendCharts />
-                    </el-icon>
-                    <p>用户增长趋势图</p>
-                    <p class="chart-note">显示最近30天的用户增长情况</p>
-                  </div>
+                  <VChart :option="userGrowthChartOption" style="height: 450px; width: 100%;" autoresize />
                 </div>
               </div>
             </el-card>
           </el-col>
 
-          <!-- 设备使用统计 -->
+          <!-- 评论统计 -->
           <el-col :xs="24" :lg="8">
             <el-card class="chart-card" shadow="hover">
               <template #header>
                 <div class="card-header">
-                  <h3>设备使用分布</h3>
+                  <h3>评论统计</h3>
                   <el-tag type="success" size="small">实时</el-tag>
                 </div>
               </template>
               <div class="chart-container" v-loading="loading">
-                <div class="device-stats">
-                  <div class="device-item" v-for="item in deviceChartData" :key="item.name">
-                    <div class="device-info">
-                      <span class="device-name">{{ item.name }}</span>
-                      <span class="device-percentage">{{ item.value }}%</span>
+                <div class="review-stats">
+                  <div class="review-item">
+                    <div class="review-info">
+                      <span class="review-label">总评论数</span>
+                      <span class="review-value">{{ formatNumber(analyticsData.reviewStats.total) }}</span>
                     </div>
-                    <div class="device-bar">
-                      <div class="device-progress" :style="{ width: item.value + '%', backgroundColor: item.color }">
-                      </div>
+                  </div>
+                  <div class="review-item">
+                    <div class="review-info">
+                      <span class="review-label">平均评分</span>
+                      <span class="review-value">{{ analyticsData.reviewStats.avg_rating }}</span>
+                    </div>
+                  </div>
+                  <div class="review-item">
+                    <div class="review-info">
+                      <span class="review-label">今日新增</span>
+                      <span class="review-value">{{ 0 }}</span>
                     </div>
                   </div>
                 </div>
@@ -455,20 +473,20 @@ onMounted(() => {
         </el-row>
       </Motion>
 
-      <!-- 热门路线排行 -->
+      <!-- 热门景点排行 -->
       <Motion :initial="{ opacity: 0, y: 30 }" :animate="{ opacity: 1, y: 0 }"
         :transition="{ duration: 0.6, delay: 0.6 }">
         <el-row :gutter="24" class="tables-row">
-          <el-col :xs="24" :lg="14">
+          <el-col :xs="24">
             <el-card class="table-card" shadow="hover">
               <template #header>
                 <div class="card-header">
-                  <h3>热门路线排行</h3>
-                  <el-tag type="warning" size="small">TOP 5</el-tag>
+                  <h3>热门景点排行</h3>
+                  <el-tag type="warning" size="small">TOP 10</el-tag>
                 </div>
               </template>
               <div class="table-container" v-loading="loading">
-                <el-table :data="analyticsData.popularRoutes" stripe>
+                <el-table :data="analyticsData.hotAttractions.slice(0, 10)" stripe>
                   <el-table-column label="排名" width="80" align="center">
                     <template #default="{ $index }">
                       <el-tag :type="$index === 0 ? 'danger' : $index === 1 ? 'warning' : 'info'" size="small">
@@ -476,20 +494,20 @@ onMounted(() => {
                       </el-tag>
                     </template>
                   </el-table-column>
-                  <el-table-column label="路线名称" prop="name" min-width="150" />
-                  <el-table-column label="预订数" prop="bookings" width="100" align="center">
+                  <el-table-column label="景点名称" prop="name" min-width="150" />
+                  <el-table-column label="访问量" prop="visit_count" width="100" align="center">
                     <template #default="{ row }">
-                      <span class="booking-count">{{ row.bookings }}</span>
-                    </template>
-                  </el-table-column>
-                  <el-table-column label="收入" prop="revenue" width="120" align="center">
-                    <template #default="{ row }">
-                      <span class="revenue-amount">{{ formatCurrency(row.revenue) }}</span>
+                      <span class="visit-count">{{ formatNumber(row.visit_count) }}</span>
                     </template>
                   </el-table-column>
                   <el-table-column label="评分" prop="rating" width="120" align="center">
                     <template #default="{ row }">
-                      <el-rate :model-value="row.rating" disabled show-score />
+                      <el-rate :model-value="parseFloat(row.rating)" disabled show-score />
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="位置" min-width="150">
+                    <template #default="{ row }">
+                      <span class="location-text">{{ getLocationText(row) }}</span>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -497,31 +515,7 @@ onMounted(() => {
             </el-card>
           </el-col>
 
-          <!-- 用户地区分布 -->
-          <el-col :xs="24" :lg="10">
-            <el-card class="table-card" shadow="hover">
-              <template #header>
-                <div class="card-header">
-                  <h3>用户地区分布</h3>
-                  <el-tag type="primary" size="small">按地区</el-tag>
-                </div>
-              </template>
-              <div class="table-container" v-loading="loading">
-                <div class="region-stats">
-                  <div class="region-item" v-for="item in analyticsData.userDistribution" :key="item.region">
-                    <div class="region-info">
-                      <span class="region-name">{{ item.region }}</span>
-                      <span class="region-count">{{ formatNumber(item.count) }}人</span>
-                    </div>
-                    <div class="region-bar">
-                      <div class="region-progress" :style="{ width: item.percentage + '%' }"></div>
-                      <span class="region-percentage">{{ item.percentage }}%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </el-card>
-          </el-col>
+
         </el-row>
       </Motion>
     </div>
@@ -677,10 +671,13 @@ onMounted(() => {
 }
 
 .chart-container {
-  height: 320px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  height: 480px;
+  width: 100%;
+}
+
+.trend-chart {
+  width: 100%;
+  height: 100%;
 }
 
 .chart-placeholder {
@@ -699,46 +696,36 @@ onMounted(() => {
   color: #C0C4CC !important;
 }
 
-/* 设备统计 */
-.device-stats {
+/* 评论统计 */
+.review-stats {
   width: 100%;
   padding: 20px 0;
 }
 
-.device-item {
+.review-item {
   margin-bottom: 20px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border-left: 4px solid #409EFF;
 }
 
-.device-info {
+.review-info {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
 }
 
-.device-name {
+.review-label {
   font-size: 14px;
-  color: #303133;
+  color: #606266;
   font-weight: 500;
 }
 
-.device-percentage {
-  font-size: 14px;
-  color: #409EFF;
+.review-value {
+  font-size: 18px;
+  color: #303133;
   font-weight: 600;
-}
-
-.device-bar {
-  height: 8px;
-  background: #f0f0f0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.device-progress {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.6s ease;
 }
 
 /* 表格区域 */
@@ -755,65 +742,9 @@ onMounted(() => {
   min-height: 300px;
 }
 
-.booking-count {
+.visit-count {
   font-weight: 600;
   color: #409EFF;
-}
-
-.revenue-amount {
-  font-weight: 600;
-  color: #67C23A;
-}
-
-/* 地区统计 */
-.region-stats {
-  padding: 20px 0;
-}
-
-.region-item {
-  margin-bottom: 20px;
-}
-
-.region-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
-}
-
-.region-name {
-  font-size: 14px;
-  color: #303133;
-  font-weight: 500;
-}
-
-.region-count {
-  font-size: 12px;
-  color: #909399;
-}
-
-.region-bar {
-  position: relative;
-  height: 8px;
-  background: #f0f0f0;
-  border-radius: 4px;
-  overflow: hidden;
-}
-
-.region-progress {
-  height: 100%;
-  background: linear-gradient(90deg, #409EFF, #67C23A);
-  border-radius: 4px;
-  transition: width 0.6s ease;
-}
-
-.region-percentage {
-  position: absolute;
-  right: 8px;
-  top: -20px;
-  font-size: 12px;
-  color: #409EFF;
-  font-weight: 600;
 }
 
 /* 响应式设计 */
@@ -839,6 +770,17 @@ onMounted(() => {
   .chart-container {
     height: 250px;
   }
+}
+
+/* 表格样式 */
+.visit-count {
+  font-weight: 600;
+  color: #409EFF;
+}
+
+.location-text {
+  color: #606266;
+  font-size: 13px;
 }
 
 /* 卡片阴影效果 */

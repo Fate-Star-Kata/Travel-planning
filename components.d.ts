@@ -10,6 +10,7 @@ declare module 'vue' {
   export interface GlobalComponents {
     ActivitiesSection: typeof import('./src/components/pages/index/ActivitiesSection.vue')['default']
     AttractionDetailDialog: typeof import('./src/components/pages/index/AttractionDetailDialog.vue')['default']
+    AttractionEditDialog: typeof import('./src/components/pages/admin/AttractionEditDialog.vue')['default']
     BaseInfo: typeof import('./src/components/pages/userInfo/BaseInfo.vue')['default']
     CaptchaConfig: typeof import('./src/components/pages/admin/systemConfig/CaptchaConfig.vue')['default']
     ChangePassword: typeof import('./src/components/pages/userInfo/ChangePassword.vue')['default']
