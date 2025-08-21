@@ -2,18 +2,20 @@
   <div class="itinerary-result">
     <!-- 操作按钮 -->
     <div class="result-actions">
-      <el-dropdown @command="handleExport">
-        <el-button type="primary" icon="Download">
-          导出行程
-          <el-icon class="el-icon--right"><arrow-down /></el-icon>
-        </el-button>
-        <template #dropdown>
-          <el-dropdown-menu>
-            <el-dropdown-item command="json">导出为JSON</el-dropdown-item>
-            <el-dropdown-item command="pdf">导出为PDF</el-dropdown-item>
-          </el-dropdown-menu>
-        </template>
-      </el-dropdown>
+      <el-button 
+        type="primary" 
+        icon="Download" 
+        @click="exportToPDF"
+      >
+        下载PDF
+      </el-button>
+      <el-button 
+        type="success" 
+        icon="Check" 
+        @click="$emit('save')"
+      >
+        保存行程
+      </el-button>
       <el-button 
         icon="DocumentCopy" 
         @click="$emit('copy')"
@@ -194,22 +196,14 @@ interface Props {
 }
 
 interface Emits {
-  (e: 'export'): void
-  (e: 'exportPdf'): void
+  (e: 'save'): void
   (e: 'copy'): void
 }
 
 const props = defineProps<Props>()
 const emit = defineEmits<Emits>()
 
-// 处理导出选择
-function handleExport(command: string) {
-  if (command === 'json') {
-    emit('export')
-  } else if (command === 'pdf') {
-    exportToPDF()
-  }
-}
+// 移除handleExport函数，直接使用exportToPDF和emit('save')
 
 // 导出为PDF
 async function exportToPDF() {

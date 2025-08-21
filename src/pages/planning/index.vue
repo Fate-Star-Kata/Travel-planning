@@ -14,7 +14,7 @@
         <!-- 结果区 -->
         <section class="lg:col-span-2">
           <ItineraryResult :itinerary="itinerary" :trip-plan="tripPlan" :loading="generating" :error="error"
-            @export="exportPlan" @copy="copyPlan" />
+            @save="savePlan" @copy="copyPlan" />
         </section>
       </div>
 
@@ -28,7 +28,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { generateTravelPlan, transformFormDataToRequest } from '@/api/Travel-planning/travel-plan'
+import { generateTravelPlan, transformFormDataToRequest, saveTripPlan, transformTripPlanToSaveRequest } from '@/api/Travel-planning/travel-plan'
 import type { RouteDay } from '@/types/apis/travel'
 import type { PlanningFormData, TripPlan } from '@/types/Travel-planning/travel-plan'
 import PageHeader from '@/components/pages/planning/PageHeader.vue'
@@ -191,22 +191,25 @@ function mockItinerary(): RouteDay[] {
   return routeDays
 }
 
-function exportPlan() {
-  const exportData = {
-    formData: form,
-    itinerary: itinerary.value,
-    tripPlan: tripPlan.value,
-    generatedAt: new Date().toISOString()
+async function savePlan() {
+  if (!tripPlan.value) {
+    ElMessage.warning('请先生成行程')
+    return
   }
 
-  const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
-  const url = URL.createObjectURL(blob)
-  const a = document.createElement('a')
-  a.href = url
-  a.download = `行程规划-${form.destination}-${form.start_date}.json`
-  a.click()
-  URL.revokeObjectURL(url)
-  ElMessage.success('行程已导出')
+  try {
+    const saveData = transformTripPlanToSaveRequest(tripPlan.value, form)
+    const response = await saveTripPlan(saveData)
+    
+    if (response.code === 200) {
+      ElMessage.success('行程保存成功！')
+    } else {
+      ElMessage.error(response.msg || '保存失败，请重试')
+    }
+  } catch (error) {
+    console.error('保存行程失败:', error)
+    ElMessage.error('保存失败，请检查网络连接后重试')
+  }
 }
 
 async function copyPlan() {

@@ -225,7 +225,7 @@ export interface MenuItem {
 }
 
 // 行程状态
-export type TripStatus = 'completed' | 'upcoming' | 'planning' | 'ongoing' | 'cancelled'
+export type TripStatus = 'completed' | 'ongoing' | 'upcoming' | 'planned'
 
 // 行程项
 export interface TripItem {

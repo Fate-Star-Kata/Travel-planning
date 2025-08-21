@@ -18,7 +18,7 @@
         <!-- 右侧：动态内容区（占两列） -->
         <div class="lg:col-span-2 space-y-6">
           <!-- 最近行程 -->
-          <RecentTrips v-if="currentView === 'trips'" :recent-trips="recentTrips" @view-all-trips="onViewAllTrips"
+          <RecentTrips v-if="currentView === 'trips'" :recent-trips="recentTrips" :loading="tripsLoading" @view-all-trips="onViewAllTrips"
             @create-trip="onCreateTrip" @trip-view="onTripView" @trip-edit="onTripEdit" />
 
           <!-- 收藏列表 -->
@@ -45,16 +45,18 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from 'vue'
 import { getFavorites, getAttractionDetail, removeFavorite, getUserProfile } from '@/api/Travel-planning/attraction'
+import { getUserTrips } from '@/api/Travel-planning/travel-plan'
 import type {
   FavoriteItem,
   AttractionDetail,
-  UserProfile,
-  MenuItem,
+  Attraction,
   TripItem,
   TripStatus,
-  UserInfo,
-  UserStatistics
+  UserProfile,
+  UserStatistics,
+  MenuItem
 } from '@/types/Travel-planning/attraction'
+import type { SavedTrip } from '@/types/Travel-planning/travel-plan'
 import { ElMessage } from 'element-plus'
 import AttractionDetailDialog from '@/components/pages/index/AttractionDetailDialog.vue'
 import UserProfileHeader from '@/components/pages/profile/UserProfileHeader.vue'
@@ -92,22 +94,8 @@ const accountMenu: MenuItem[] = reactive([
   { key: 'privacy', label: '隐私安全', icon: '🛡️' },
 ])
 
-const recentTrips: TripItem[] = reactive([
-  {
-    id: 't1',
-    title: '北京文化之旅',
-    dateRange: '2024年2月15日 - 2月18日',
-    status: 'completed',
-    cover: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDMyMCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRkZGN0VEIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMTIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iI0Y1OUUwQiIgZm9udC1zaXplPSIyNCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuWMl+S6rOaWh+WMluS5i+aXhTwvdGV4dD4KPC9zdmc+',
-  },
-  {
-    id: 't2',
-    title: '杭州西湖游',
-    dateRange: '2024年3月20日 - 3月22日',
-    status: 'upcoming',
-    cover: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDMyMCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRUZGNkZGIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMTIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iIzM3MzNEQyIgZm9udC1zaXplPSIyNCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuadreW3nuilv+a5luaXhTwvdGV4dD4KPC9zdmc+',
-  },
-])
+const recentTrips = ref<TripItem[]>([])
+const tripsLoading = ref(false)
 
 // 收藏相关状态
 const favoritesList = ref<FavoriteItem[]>([])
@@ -303,11 +291,69 @@ function onOpenFavorites() {
 
 
 
+// 获取用户行程
+const loadUserTrips = async () => {
+  try {
+    tripsLoading.value = true
+    const response = await getUserTrips()
+    if (response.code === 200) {
+      // 转换API数据为组件需要的格式
+      recentTrips.value = response.data.trips.map((trip: SavedTrip) => {
+        // 根据开始时间、结束时间和当前时间判断行程状态
+        const startDate = new Date(trip.start_date)
+        const endDate = new Date(trip.end_date)
+        const currentDate = new Date()
+        
+        let status: TripStatus
+        
+        if (endDate < currentDate) {
+          // 结束时间已过，行程已完成
+          status = 'completed'
+        } else if (startDate <= currentDate && currentDate <= endDate) {
+          // 当前时间在行程期间内，行程进行中
+          status = 'ongoing'
+        } else if (startDate > currentDate) {
+          // 行程还未开始
+          const timeDiff = startDate.getTime() - currentDate.getTime()
+          const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24))
+          
+          if (daysDiff <= 1) {
+            // 小于等于一天，即将开始
+            status = 'upcoming'
+          } else {
+            // 大于一天，已规划
+            status = 'planned'
+          }
+        } else {
+          // 默认状态
+          status = 'planned'
+        }
+        
+        return {
+          id: trip.id.toString(),
+          title: trip.title,
+          dateRange: `${trip.start_date} - ${trip.end_date}`,
+          status,
+          cover: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIwIiBoZWlnaHQ9IjI0MCIgdmlld0JveD0iMCAwIDMyMCAyNDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIzMjAiIGhlaWdodD0iMjQwIiBmaWxsPSIjRkZGN0VEIi8+Cjx0ZXh0IHg9IjE2MCIgeT0iMTIwIiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBkb21pbmFudC1iYXNlbGluZT0iY2VudHJhbCIgZmlsbD0iI0Y1OUUwQiIgZm9udC1zaXplPSIyNCIgZm9udC1mYW1pbHk9InNhbnMtc2VyaWYiPuihjOeoi+WbvueJhzwvdGV4dD4KPC9zdmc+'
+        }
+      })
+    } else {
+      ElMessage.error(response.msg || '获取行程列表失败')
+    }
+  } catch (error) {
+    console.error('获取行程列表失败:', error)
+    ElMessage.error('获取行程列表失败')
+  } finally {
+    tripsLoading.value = false
+  }
+}
+
 // 页面加载时获取用户资料和收藏数据
 onMounted(async () => {
   await Promise.all([
     loadUserProfile(),
-    loadFavorites()
+    loadFavorites(),
+    loadUserTrips()
   ])
 })
 
@@ -316,19 +362,27 @@ function statusText(status: TripStatus) {
   switch (status) {
     case 'completed':
       return '已完成'
+    case 'ongoing':
+      return '进行中'
     case 'upcoming':
       return '即将开始'
+    case 'planned':
+      return '已规划'
     default:
-      return '规划中'
+      return '已规划'
   }
 }
 
 function statusBadgeClass(status: TripStatus) {
   switch (status) {
     case 'completed':
-      return 'badge-success'
+      return 'badge-success'  // 绿色
+    case 'ongoing':
+      return 'badge-warning'  // 黄色
     case 'upcoming':
-      return 'badge-warning'
+      return 'badge-error'    // 红色
+    case 'planned':
+      return 'badge-info'     // 蓝色
     default:
       return 'badge-info'
   }

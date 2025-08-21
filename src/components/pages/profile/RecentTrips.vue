@@ -20,7 +20,28 @@
         </button>
       </div>
 
-      <div v-if="recentTrips.length === 0" class="text-center py-12">
+      <!-- 加载状态 -->
+      <div v-if="loading" class="space-y-6">
+        <div v-for="i in 3" :key="i" class="animate-pulse">
+          <div class="grid grid-cols-12 gap-4 items-center p-4">
+            <div class="col-span-12 sm:col-span-3">
+              <div class="bg-base-300 rounded-2xl aspect-[4/3]"></div>
+            </div>
+            <div class="col-span-12 sm:col-span-6 space-y-3">
+              <div class="h-6 bg-base-300 rounded w-3/4"></div>
+              <div class="h-4 bg-base-300 rounded w-1/2"></div>
+              <div class="h-4 bg-base-300 rounded w-1/4"></div>
+            </div>
+            <div class="col-span-12 sm:col-span-3 space-y-2">
+              <div class="h-8 bg-base-300 rounded w-full"></div>
+              <div class="h-8 bg-base-300 rounded w-full"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 空状态 -->
+      <div v-else-if="recentTrips.length === 0" class="text-center py-12">
         <div class="text-6xl mb-4">🗺️</div>
         <p class="text-base-content/70 text-lg">暂无行程，去创建你的第一个行程吧～</p>
         <button class="btn btn-primary mt-4" @click="$emit('create-trip')">创建行程</button>
@@ -89,6 +110,7 @@ import type { TripItem } from '@/types/Travel-planning/attraction'
 // Props
 interface Props {
   recentTrips: TripItem[]
+  loading?: boolean
 }
 
 defineProps<Props>()

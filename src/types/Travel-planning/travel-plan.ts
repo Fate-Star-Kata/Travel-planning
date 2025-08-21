@@ -100,6 +100,125 @@ export interface ErrorResponse {
   data?: any
 }
 
+// ========== 保存旅行计划相关类型 ==========
+
+// 保存旅行计划请求 - 每日景点信息
+export interface SaveTripAttractionRequest {
+  attraction_id: number
+  visit_order: number
+  planned_start_time: string // HH:mm:ss 格式
+  planned_duration: number // 分钟
+  notes?: string
+}
+
+// 保存旅行计划请求 - 每日行程
+export interface SaveTripDayRequest {
+  date: string // YYYY-MM-DD 格式
+  theme: string
+  attractions: SaveTripAttractionRequest[]
+}
+
+// 保存旅行计划请求
+export interface SaveTripPlanRequest {
+  title: string
+  destination: string
+  start_date: string // YYYY-MM-DD 格式
+  end_date: string // YYYY-MM-DD 格式
+  budget: number
+  description?: string
+  days_data: SaveTripDayRequest[]
+}
+
+// 保存旅行计划响应 - 景点详情
+export interface SavedTripAttraction {
+  id: number
+  attraction: {
+    id: number
+    name: string
+    description: string
+    category: string
+    address: string
+    city: string
+    province: string
+    latitude: string
+    longitude: string
+    ticket_price: string
+    opening_hours: string
+    visit_duration: number
+    rating: string
+    rating_count: number
+    images: string[]
+    tags: string[]
+    is_active: boolean
+    created_at: string
+    updated_at: string
+  }
+  visit_order: number
+  planned_start_time: string
+  planned_duration: number
+  actual_start_time: string | null
+  actual_duration: number | null
+  notes: string
+  is_completed: boolean
+  trip_day: number
+}
+
+// 保存旅行计划响应 - 每日行程
+export interface SavedTripDay {
+  id: number
+  attractions: SavedTripAttraction[]
+  day_number: number
+  date: string
+  title: string
+  notes: string | null
+  trip: number
+}
+
+// 保存旅行计划响应 - 完整行程
+export interface SavedTrip {
+  id: number
+  days: SavedTripDay[]
+  user_name: string
+  title: string
+  destination_city: string
+  start_date: string
+  end_date: string
+  total_budget: string
+  actual_cost: string
+  traveler_count: number
+  status: string
+  notes: string
+  is_public: boolean
+  created_at: string
+  updated_at: string
+  user: number
+}
+
+// 保存旅行计划响应
+export interface SaveTripPlanResponse {
+  code: number
+  msg: string
+  data: SavedTrip
+}
+
+// ========== 获取用户行程列表相关类型 ==========
+
+// 用户行程列表响应
+export interface GetUserTripsResponse {
+  code: number
+  msg: string
+  data: {
+    trips: SavedTrip[]
+    pagination: {
+      current_page: number
+      total_pages: number
+      total_count: number
+      has_next: boolean
+      has_previous: boolean
+    }
+  }
+}
+
 // 旅行偏好选项
 export const TRAVEL_PREFERENCES = [
   '历史文化',
