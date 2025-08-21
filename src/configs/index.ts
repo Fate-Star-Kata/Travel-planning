@@ -78,19 +78,25 @@ export const adminMenuItems: AdminHeader[] = [
   },
   {
     id: '5',
+    title: '评价管理',
+    icon: 'ChatDotRound',
+    path: '/admin/reviews',
+  },
+  {
+    id: '6',
     title: '数据分析',
     icon: 'TrendCharts',
     path: '/admin/analytics',
   },
   {
-    id: '6',
+    id: '7',
     title: 'AI模型管理',
     icon: 'MagicStick',
     path: '/admin/ai-models',
     hide: true
   },
   {
-    id: '9',
+    id: '8',
     title: '系统设置',
     icon: 'Tools',
     path: '/admin/settings',

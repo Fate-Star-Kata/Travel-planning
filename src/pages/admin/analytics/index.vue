@@ -3,11 +3,22 @@ import { ref, reactive, onMounted, computed } from 'vue'
 import { Motion } from 'motion-v'
 import { ElMessage } from 'element-plus'
 import { getDashboardStats, getHotAttractions, getUserGrowthData } from '@/api/admin/dashboard'
+import { getAdminReviews, getReviewStats } from '@/api/admin/reviews'
 import VChart from 'vue-echarts'
 import { use } from 'echarts/core'
 import { CanvasRenderer } from 'echarts/renderers'
 import { LineChart } from 'echarts/charts'
 import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from 'echarts/components'
+import {
+  User,
+  MapLocation,
+  Location,
+  Money,
+  ArrowUp,
+  Refresh,
+  ChatDotRound,
+  Star
+} from '@element-plus/icons-vue'
 
 // 注册 ECharts 组件
 use([
@@ -19,7 +30,6 @@ use([
   GridComponent
 ])
 import type {
-  DashboardStatsData,
   HotAttractionItem,
   UserGrowthChartItem,
   UserStats as ApiUserStats,
@@ -28,6 +38,7 @@ import type {
   ReviewStats,
   RevenueStats as ApiRevenueStats
 } from '@/types/apis/dashboard'
+import type { GetAdminReviewsRequest } from '@/types/apis/reviews'
 
 // 数据统计接口定义
 interface AnalyticsData {
@@ -55,7 +66,7 @@ const cardVariants = {
 
 // 响应式数据
 const loading = ref(false)
-const dateRange = ref<[Date, Date]>([new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), new Date()])
+
 const analyticsData = ref<AnalyticsData>({
   userStats: {
     total: 0,
@@ -101,6 +112,69 @@ const getAnalyticsData = async () => {
       getUserGrowthData()
     ])
 
+    // 获取评分分布数据（使用与reviews页面相同的方法）
+    let reviewStatsWithDistribution = statsResponse.data.reviews
+    try {
+      // 首先获取总评价数量
+      const reviewStatsResponse = await getReviewStats()
+      let totalReviews = 0
+      if (reviewStatsResponse.code === 200 && reviewStatsResponse.data?.reviews?.total) {
+        totalReviews = reviewStatsResponse.data.reviews.total
+      }
+
+      // 获取用于统计的样本数据（最多100条）
+      const sampleSize = Math.min(totalReviews, 100)
+      const sampleParams: GetAdminReviewsRequest = {
+        page: 1,
+        page_size: sampleSize > 0 ? sampleSize : 10
+      }
+
+      const sampleResponse = await getAdminReviews(sampleParams)
+      if (sampleResponse.code === 200 && sampleResponse.data) {
+        const sampleReviews = sampleResponse.data.reviews
+
+        // 基于样本数据计算统计信息
+        const ratingSum = sampleReviews.reduce((sum, review) => sum + review.rating, 0)
+        const avgRating = sampleReviews.length > 0 ? parseFloat((ratingSum / sampleReviews.length).toFixed(1)) : 0
+
+        // 计算评分分布
+        const ratingDist: { '5': number; '4': number; '3': number; '2': number; '1': number;[key: string]: number } = { '5': 0, '4': 0, '3': 0, '2': 0, '1': 0 }
+        sampleReviews.forEach(review => {
+          const rating = review.rating.toString()
+          if (ratingDist[rating] !== undefined) {
+            ratingDist[rating]++
+          }
+        })
+
+        // 计算今日评价数量
+        const today = new Date().toISOString().split('T')[0]
+        const todayCount = sampleReviews.filter(review => {
+          const reviewDate = review.created_at.split('T')[0]
+          return reviewDate === today
+        }).length
+
+        // 计算各状态评价数量（基于样本）
+        const pendingCount = sampleReviews.filter(r => r.status === 'pending').length
+        const approvedCount = sampleReviews.filter(r => r.status === 'approved').length
+        const rejectedCount = sampleReviews.filter(r => r.status === 'rejected').length
+
+        // 更新评价统计数据
+        reviewStatsWithDistribution = {
+          total: totalReviews,
+          avg_rating: avgRating,
+          rating_distribution: ratingDist,
+          pending_reviews: pendingCount,
+          approved_reviews: approvedCount,
+          rejected_reviews: rejectedCount,
+          today_reviews: todayCount,
+          weekly_growth: 0 // 增长率需要历史数据计算，暂时设为0
+        }
+      }
+    } catch (reviewError) {
+      console.error('获取评分分布数据失败:', reviewError)
+      // 如果获取评分分布失败，使用原始数据
+    }
+
     // 更新数据
     analyticsData.value = {
       userStats: statsResponse.data.users,
@@ -109,7 +183,7 @@ const getAnalyticsData = async () => {
         totalBookings: statsResponse.data.trips?.totalBookings || statsResponse.data.trips?.total || 0
       },
       attractionStats: statsResponse.data.attractions,
-      reviewStats: statsResponse.data.reviews,
+      reviewStats: reviewStatsWithDistribution,
       revenueStats: statsResponse.data.revenue,
       userGrowthTrend: userGrowthResponse.data.chart_data,
       hotAttractions: attractionsResponse.data.attractions.sort((a: any, b: any) => (b.visit_count || 0) - (a.visit_count || 0))
@@ -123,15 +197,14 @@ const getAnalyticsData = async () => {
   }
 }
 
+
+
 // 刷新数据
 const refreshData = () => {
   getAnalyticsData()
 }
 
-// 导出报告
-const exportReport = () => {
-  ElMessage.success('报告导出功能开发中...')
-}
+
 
 // 格式化数字
 const formatNumber = (num: number | undefined) => {
@@ -149,10 +222,7 @@ const getLocationText = (row: any) => {
   const parts = []
   if (row.city) parts.push(row.city)
   if (row.province && row.province !== row.city) parts.push(row.province)
-  if (parts.length === 0 && row.address) {
-    // 如果没有城市和省份信息，使用地址的前20个字符
-    return row.address.length > 20 ? row.address.substring(0, 20) + '...' : row.address
-  }
+  if (row.address) parts.push(row.address)
   return parts.join(', ') || '未知位置'
 }
 
@@ -251,6 +321,41 @@ const userGrowthChartOption = computed(() => {
   }
 })
 
+// 获取评分颜色
+const getRatingColor = (rating: number) => {
+  const colors = {
+    5: '#67C23A',
+    4: '#95D475',
+    3: '#E6A23C',
+    2: '#F78989',
+    1: '#F56C6C'
+  }
+  return colors[rating as keyof typeof colors] || '#909399'
+}
+
+// 获取评分数量
+const getRatingCount = (rating: number) => {
+  const reviewStats = analyticsData.value.reviewStats
+  if (!reviewStats || !reviewStats.rating_distribution) return 0
+  return reviewStats.rating_distribution[rating.toString()] || 0
+}
+
+// 获取评分百分比
+const getRatingPercentage = (rating: number) => {
+  const reviewStats = analyticsData.value.reviewStats
+  if (!reviewStats || !reviewStats.total) return 0
+  const count = getRatingCount(rating)
+  return reviewStats.total > 0 ? Math.round((count / reviewStats.total) * 100) : 0
+}
+
+// 获取周增长率
+const getWeeklyGrowth = () => {
+  const reviewStats = analyticsData.value.reviewStats
+  if (!reviewStats || !reviewStats.weekly_growth) return '+0%'
+  const growth = reviewStats.weekly_growth
+  return growth > 0 ? `+${growth}%` : `${growth}%`
+}
+
 // 组件挂载时获取数据
 onMounted(() => {
   getAnalyticsData()
@@ -271,22 +376,12 @@ onMounted(() => {
           </div>
           <div class="header-right">
             <el-space>
-              <el-date-picker v-model="dateRange" type="daterange" range-separator="至" start-placeholder="开始日期"
-                end-placeholder="结束日期" size="default" />
               <Motion :whileHover="{ scale: 1.05 }" :whileTap="{ scale: 0.95 }">
                 <el-button @click="refreshData" :loading="loading">
                   <el-icon>
                     <Refresh />
                   </el-icon>
                   刷新数据
-                </el-button>
-              </Motion>
-              <Motion :whileHover="{ scale: 1.05 }" :whileTap="{ scale: 0.95 }">
-                <el-button type="primary" @click="exportReport">
-                  <el-icon>
-                    <Download />
-                  </el-icon>
-                  导出报告
                 </el-button>
               </Motion>
             </el-space>
@@ -299,7 +394,7 @@ onMounted(() => {
         :transition="{ duration: 0.6, delay: 0.2 }">
         <el-row :gutter="24" class="metrics-row">
           <!-- 用户统计 -->
-          <el-col :xs="24" :sm="12" :md="6">
+          <el-col :xs="24" :sm="12" :md="8">
             <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.1 } as any">
               <el-card class="metric-card user-card" shadow="hover">
                 <div class="metric-content">
@@ -328,7 +423,7 @@ onMounted(() => {
           </el-col>
 
           <!-- 路线统计 -->
-          <el-col :xs="24" :sm="12" :md="6">
+          <el-col :xs="24" :sm="12" :md="8">
             <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.2 } as any">
               <el-card class="metric-card route-card" shadow="hover">
                 <div class="metric-content">
@@ -357,7 +452,7 @@ onMounted(() => {
           </el-col>
 
           <!-- 景点统计 -->
-          <el-col :xs="24" :sm="12" :md="6">
+          <el-col :xs="24" :sm="12" :md="8">
             <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.3 } as any">
               <el-card class="metric-card attraction-card" shadow="hover">
                 <div class="metric-content">
@@ -380,35 +475,6 @@ onMounted(() => {
                 <div class="metric-detail">
                   <span>活跃景点: {{ analyticsData.attractionStats.active }}</span>
                   <span>平均评分: {{ analyticsData.attractionStats.avg_rating }}</span>
-                </div>
-              </el-card>
-            </Motion>
-          </el-col>
-
-          <!-- 收入统计 -->
-          <el-col :xs="24" :sm="12" :md="6">
-            <Motion v-bind="cardVariants" :transition="{ ...cardVariants.transition, delay: 0.4 } as any">
-              <el-card class="metric-card revenue-card" shadow="hover">
-                <div class="metric-content">
-                  <div class="metric-icon">
-                    <el-icon size="32" color="#F56C6C">
-                      <Money />
-                    </el-icon>
-                  </div>
-                  <div class="metric-info">
-                    <h3 class="metric-title">月收入</h3>
-                    <p class="metric-value">{{ formatCurrency(analyticsData.revenueStats.total) }}</p>
-                    <p class="metric-change positive">
-                      <el-icon>
-                        <ArrowUp />
-                      </el-icon>
-                      {{ formatPercentage(0) }}
-                    </p>
-                  </div>
-                </div>
-                <div class="metric-detail">
-                  <span>总收入: {{ formatCurrency(analyticsData.revenueStats.total) }}</span>
-                  <span>客单价: {{ formatCurrency(0) }}</span>
                 </div>
               </el-card>
             </Motion>
@@ -439,32 +505,72 @@ onMounted(() => {
 
           <!-- 评论统计 -->
           <el-col :xs="24" :lg="8">
-            <el-card class="chart-card" shadow="hover">
+            <el-card class="chart-card review-analytics-card" shadow="hover">
               <template #header>
                 <div class="card-header">
-                  <h3>评论统计</h3>
+                  <h3>评论统计分析</h3>
                   <el-tag type="success" size="small">实时</el-tag>
                 </div>
               </template>
-              <div class="chart-container" v-loading="loading">
-                <div class="review-stats">
-                  <div class="review-item">
-                    <div class="review-info">
-                      <span class="review-label">总评论数</span>
-                      <span class="review-value">{{ formatNumber(analyticsData.reviewStats.total) }}</span>
+              <div class="review-analytics-container" v-loading="loading">
+                <!-- 核心指标 -->
+                <div class="review-metrics">
+                  <div class="metric-item total-reviews">
+                    <div class="metric-icon-wrapper">
+                      <el-icon size="20" color="#409EFF">
+                        <ChatDotRound />
+                      </el-icon>
+                    </div>
+                    <div class="metric-content">
+                      <div class="metric-number">{{ formatNumber(analyticsData.reviewStats.total) }}</div>
+                      <div class="metric-label">总评论数</div>
                     </div>
                   </div>
-                  <div class="review-item">
-                    <div class="review-info">
-                      <span class="review-label">平均评分</span>
-                      <span class="review-value">{{ analyticsData.reviewStats.avg_rating }}</span>
+
+                  <div class="metric-item avg-rating">
+                    <div class="metric-icon-wrapper">
+                      <el-icon size="20" color="#F7BA2A">
+                        <Star />
+                      </el-icon>
+                    </div>
+                    <div class="metric-content">
+                      <div class="metric-number">{{ analyticsData.reviewStats.avg_rating || 0 }}</div>
+                      <div class="metric-label">平均评分</div>
                     </div>
                   </div>
-                  <div class="review-item">
-                    <div class="review-info">
-                      <span class="review-label">今日新增</span>
-                      <span class="review-value">{{ 0 }}</span>
+                </div>
+
+                <!-- 评分分布 -->
+                <div class="rating-distribution">
+                  <h4 class="section-title">评分分布</h4>
+                  <div class="rating-bars">
+                    <div v-for="rating in [5, 4, 3, 2, 1]" :key="rating" class="rating-bar">
+                      <div class="rating-label">
+                        <el-rate :model-value="rating" disabled size="small" />
+                      </div>
+                      <div class="rating-progress">
+                        <div class="progress-bg">
+                          <div class="progress-fill" :style="{
+                            width: getRatingPercentage(rating) + '%',
+                            backgroundColor: getRatingColor(rating)
+                          }"></div>
+                        </div>
+                        <span class="rating-count">{{ getRatingCount(rating) }}</span>
+                      </div>
                     </div>
+                  </div>
+                </div>
+
+                <!-- 统计摘要 -->
+                <div class="review-summary">
+                  <div class="summary-item">
+                    <span class="summary-label">今日新增</span>
+                    <span class="summary-value positive">+{{ analyticsData.reviewStats.today_reviews || 0 }}</span>
+                  </div>
+
+                  <div class="summary-item">
+                    <span class="summary-label">本周增长</span>
+                    <span class="summary-value positive">{{ getWeeklyGrowth() }}</span>
                   </div>
                 </div>
               </div>
@@ -494,13 +600,13 @@ onMounted(() => {
                       </el-tag>
                     </template>
                   </el-table-column>
-                  <el-table-column label="景点名称" prop="name" min-width="150" />
+                  <el-table-column label="景点名称" prop="name" width="120" />
                   <el-table-column label="访问量" prop="visit_count" width="100" align="center">
                     <template #default="{ row }">
                       <span class="visit-count">{{ formatNumber(row.visit_count) }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column label="评分" prop="rating" width="120" align="center">
+                  <el-table-column label="评分" prop="rating" width="200" align="center">
                     <template #default="{ row }">
                       <el-rate :model-value="parseFloat(row.rating)" disabled show-score />
                     </template>
@@ -508,6 +614,13 @@ onMounted(() => {
                   <el-table-column label="位置" min-width="150">
                     <template #default="{ row }">
                       <span class="location-text">{{ getLocationText(row) }}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="描述" prop="description" min-width="200">
+                    <template #default="{ row }">
+                      <el-tooltip :content="row.description" placement="top" :disabled="!row.description">
+                        <span class="description-text">{{ row.description || '暂无描述' }}</span>
+                      </el-tooltip>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -791,5 +904,147 @@ onMounted(() => {
 
 .el-card:hover {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+}
+
+/* 评论统计样式 */
+.review-analytics-card {
+  height: 100%;
+}
+
+.review-analytics-container {
+  padding: 0;
+}
+
+.review-metrics {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.metric-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  gap: 12px;
+}
+
+.metric-icon-wrapper {
+  padding: 8px;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.metric-content .metric-number {
+  font-size: 20px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0;
+}
+
+.metric-content .metric-label {
+  font-size: 12px;
+  color: #909399;
+  margin: 0;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #303133;
+  margin: 0 0 16px 0;
+}
+
+.rating-distribution {
+  margin-bottom: 24px;
+  padding: 0 8px;
+}
+
+.rating-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.rating-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 4px;
+}
+
+.rating-label {
+  width: 70px;
+  display: flex;
+  justify-content: flex-end;
+  flex-shrink: 0;
+}
+
+.rating-progress {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  max-width: 200px;
+}
+
+.progress-bg {
+  flex: 1;
+  height: 6px;
+  background: #f0f0f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.rating-count {
+  font-size: 12px;
+  color: #909399;
+  min-width: 24px;
+  width: 24px;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.review-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+}
+
+.summary-label {
+  font-size: 13px;
+  color: #606266;
+}
+
+.summary-value {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.summary-value.positive {
+  color: #67C23A;
+}
+
+.summary-value.warning {
+  color: #E6A23C;
 }
 </style>

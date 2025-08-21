@@ -29,6 +29,19 @@ export interface TripStats {
 export interface ReviewStats {
   total: number
   avg_rating: number
+  rating_distribution?: {
+    '5': number
+    '4': number
+    '3': number
+    '2': number
+    '1': number
+    [key: string]: number
+  }
+  pending_reviews?: number
+  approved_reviews?: number
+  rejected_reviews?: number
+  today_reviews?: number
+  weekly_growth?: number
 }
 
 // 收入统计数据
