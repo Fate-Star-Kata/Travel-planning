@@ -1,236 +1,33 @@
 <template>
   <div class="min-h-screen bg-base-100">
-    <!-- 标题区域：标题 + 搜索框 + 预设关键词 -->
-    <section class="hero min-h-[70vh] bg-gradient-to-br from-primary/20 via-secondary/15 to-accent/10 relative overflow-hidden">
-      <!-- 装饰性背景元素 -->
-      <div class="absolute inset-0 opacity-10">
-        <div class="absolute top-20 left-10 w-32 h-32 bg-primary rounded-full blur-3xl animate-pulse"></div>
-        <div class="absolute bottom-20 right-10 w-40 h-40 bg-secondary rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-60 h-60 bg-accent rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-      
-      <div class="hero-content text-center w-full max-w-5xl mx-auto relative z-10">
-        <div class="w-full">
-          <!-- 主标题区 -->
-          <div class="mb-8">
-            <div class="flex items-center justify-center gap-4 mb-4">
-              <div class="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
-                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M10 2L3 7v11a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V7l-7-5z"/>
-                </svg>
-              </div>
-              <h1 class="text-6xl font-black bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                智能旅游规划与导航
-              </h1>
-              <div class="w-12 h-12 bg-gradient-to-br from-secondary to-accent rounded-xl flex items-center justify-center shadow-lg">
-                <svg class="w-7 h-7 text-white" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-              </div>
-            </div>
-            <p class="text-xl text-base-content/80 mb-2 font-medium">一站式规划行程、查询攻略与活动安排</p>
-            <p class="text-base-content/60">🌟 享受轻松便捷的旅行体验 🌟</p>
-          </div>
+    <!-- 标题区域组件 -->
+    <HeroSection 
+      :preset-keywords="presetKeywords"
+      @search="handleSearch"
+      @apply-keyword="applyKeyword"
+    />
 
-          <!-- 搜索框 -->
-          <div class="relative mb-6">
-            <div class="join w-full max-w-3xl mx-auto shadow-2xl">
-              <div class="relative join-item flex-1">
-                <input v-model="searchQuery" type="text" placeholder="🔍 搜索目的地、主题或景点..."
-                       class="input input-bordered input-lg w-full pl-12 bg-base-100/95 backdrop-blur-sm border-2 border-primary/20 focus:border-primary focus:bg-base-100" 
-                       @keyup.enter="handleSearch" />
-                <svg class="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-base-content/40" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-                </svg>
-              </div>
-              <button class="btn btn-primary btn-lg join-item px-8 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105" @click="handleSearch">
-                <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                  <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd"/>
-                </svg>
-                智能搜索
-              </button>
-            </div>
-          </div>
+    <!-- 目的地推荐组件 -->
+    <DestinationsSection 
+      :destinations="destinations"
+      :loading="loading"
+      @favorite="handleFavorite"
+      @show-detail="showAttractionDetail"
+      @start-planning="goPlanningWith"
+      @shuffle="shuffleDestinations"
+    />
 
-          <!-- 预设关键词 -->
-          <div class="flex flex-wrap gap-3 justify-center">
-            <div class="text-sm text-base-content/60 mb-2 w-full">🔥 热门推荐</div>
-            <button v-for="k in presetKeywords" :key="k" 
-                    class="badge badge-lg badge-outline cursor-pointer hover:badge-primary hover:scale-110 transition-all duration-300 shadow-md hover:shadow-lg px-4 py-3 font-medium"
-                    @click="applyKeyword(k)">{{ k }}</button>
-          </div>
-        </div>
-      </div>
-    </section>
+    <!-- 旅游攻略组件 -->
+    <GuidesSection 
+      :guides="guides"
+      @read-guide="(guide) => console.log('阅读攻略:', guide)"
+    />
 
-    <!-- 主要内容：目的地推荐 -->
-    <section class="py-16 bg-gradient-to-b from-base-100 to-base-200/50">
-      <div class="container mx-auto px-4">
-        <div class="flex items-end justify-between mb-10">
-          <div class="flex items-center gap-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-lg">
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M10 2L3 7v11a1 1 0 001 1h3v-6h6v6h3a1 1 0 001-1V7l-7-5z"/>
-              </svg>
-            </div>
-            <h2 class="text-4xl font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">旅游目的地推荐</h2>
-          </div>
-          <button class="btn btn-outline btn-primary gap-2 hover:scale-105 transition-all duration-300" @click="shuffleDestinations">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd"/>
-            </svg>
-            换一换
-          </button>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          <article v-for="(d, index) in destinations" :key="d.id" 
-                   class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-2 group border border-base-300/50 hover:border-primary/30"
-                   :style="{ animationDelay: `${index * 100}ms` }">
-            <div class="card-body p-6">
-              <div class="flex items-start justify-between mb-4">
-                <h3 class="card-title text-2xl font-bold group-hover:text-primary transition-colors duration-300">{{ d.name }}</h3>
-                <div class="w-8 h-8 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                  <svg class="w-4 h-4 text-primary" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-              </div>
-              <p class="text-base-content/70 mb-4 leading-relaxed">{{ d.description }}</p>
-              <div class="card-actions justify-between items-center">
-                <div class="flex flex-wrap gap-2">
-                  <span v-for="t in d.tags" :key="t" 
-                        class="badge badge-outline badge-sm hover:badge-primary transition-all duration-300 cursor-default">{{ t }}</span>
-                </div>
-                <button class="btn btn-primary btn-sm gap-2 hover:scale-105 transition-all duration-300 shadow-lg" @click="goPlanningWith(d.name)">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                  </svg>
-                  去规划
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- 主要内容：旅游攻略 -->
-    <section class="py-16 bg-gradient-to-br from-base-200/80 via-base-200 to-base-300/50 relative">
-      <!-- 装饰背景 -->
-      <div class="absolute inset-0 opacity-5">
-        <div class="absolute top-10 right-20 w-24 h-24 bg-primary rounded-full blur-2xl"></div>
-        <div class="absolute bottom-10 left-20 w-32 h-32 bg-secondary rounded-full blur-2xl"></div>
-      </div>
-      
-      <div class="container mx-auto px-4 relative z-10">
-        <div class="text-center mb-12">
-          <div class="flex items-center justify-center gap-4 mb-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-secondary to-accent rounded-lg flex items-center justify-center shadow-lg">
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-              </svg>
-            </div>
-            <h2 class="text-4xl font-bold bg-gradient-to-r from-secondary to-accent bg-clip-text text-transparent">旅游攻略</h2>
-            <div class="w-10 h-10 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center shadow-lg">
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-          </div>
-          <p class="text-base-content/70 text-lg">📚 精选旅游攻略，让你的旅行更精彩</p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <article v-for="(g, index) in guides" :key="g.id" 
-                   class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 group border border-base-300/50 hover:border-secondary/30"
-                   :style="{ animationDelay: `${index * 150}ms` }">
-            <div class="card-body p-6">
-              <div class="flex items-start gap-3 mb-4">
-                <div class="w-12 h-12 bg-gradient-to-br from-secondary/20 to-accent/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                  <svg class="w-6 h-6 text-secondary" fill="currentColor" viewBox="0 0 20 20">
-                    <path d="M9 4.804A7.968 7.968 0 005.5 4c-1.255 0-2.443.29-3.5.804v10A7.969 7.969 0 015.5 14c1.669 0 3.218.51 4.5 1.385A7.962 7.962 0 0114.5 14c1.255 0 2.443.29 3.5.804v-10A7.968 7.968 0 0014.5 4c-1.255 0-2.443.29-3.5.804V12a1 1 0 11-2 0V4.804z"/>
-                  </svg>
-                </div>
-                <h3 class="card-title text-xl font-bold group-hover:text-secondary transition-colors duration-300 leading-tight">{{ g.title }}</h3>
-              </div>
-              <p class="text-base-content/70 line-clamp-3 leading-relaxed mb-6">{{ g.summary }}</p>
-              <div class="card-actions justify-end">
-                <button class="btn btn-secondary btn-sm gap-2 hover:scale-105 transition-all duration-300 shadow-lg">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clip-rule="evenodd"/>
-                  </svg>
-                  查看详情
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- 主要内容：旅游活动安排 -->
-    <section class="py-16 bg-gradient-to-b from-base-100 to-base-200/30">
-      <div class="container mx-auto px-4">
-        <div class="text-center mb-12">
-          <div class="flex items-center justify-center gap-4 mb-4">
-            <div class="w-10 h-10 bg-gradient-to-br from-accent to-primary rounded-lg flex items-center justify-center shadow-lg">
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-            <h2 class="text-4xl font-bold bg-gradient-to-r from-accent to-primary bg-clip-text text-transparent">旅游活动安排</h2>
-            <div class="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-lg flex items-center justify-center shadow-lg">
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
-                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-              </svg>
-            </div>
-          </div>
-          <p class="text-base-content/70 text-lg">🎯 精彩活动等你参与，丰富你的旅行体验</p>
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <article v-for="(a, index) in activities" :key="a.id" 
-                   class="card bg-base-100 shadow-xl hover:shadow-2xl transition-all duration-500 hover:-translate-y-1 group border border-base-300/50 hover:border-accent/30"
-                   :style="{ animationDelay: `${index * 200}ms` }">
-            <div class="card-body p-6">
-              <div class="flex items-start gap-4 mb-4">
-                <div class="w-14 h-14 bg-gradient-to-br from-accent/20 to-primary/20 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300 flex-shrink-0">
-                  <svg class="w-7 h-7 text-accent" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                  </svg>
-                </div>
-                <div class="flex-1">
-                  <h3 class="card-title text-2xl font-bold group-hover:text-accent transition-colors duration-300 mb-2">{{ a.name }}</h3>
-                  <div class="flex flex-col gap-2">
-                    <div class="flex items-center gap-2 text-base-content/70">
-                      <svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-12a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V6z" clip-rule="evenodd"/>
-                      </svg>
-                      <span class="font-medium">{{ a.date }}</span>
-                    </div>
-                    <div class="flex items-center gap-2 text-base-content/70">
-                      <svg class="w-4 h-4 text-accent" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"/>
-                      </svg>
-                      <span class="font-medium">{{ a.location }}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p class="text-base-content/70 leading-relaxed mb-6">{{ a.desc }}</p>
-              <div class="card-actions justify-end">
-                <button class="btn btn-accent btn-sm gap-2 hover:scale-105 transition-all duration-300 shadow-lg">
-                  <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"/>
-                  </svg>
-                  加入日程
-                </button>
-              </div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
+    <!-- 旅游活动安排组件 -->
+    <ActivitiesSection 
+      :activities="activities"
+      @book-activity="(activity) => console.log('预订活动:', activity)"
+    />
 
     <!-- 底部信息区域 -->
     <footer class="bg-base-200 py-8 mt-16">
@@ -242,42 +39,224 @@
       </div>
     </footer>
   </div>
+
+  <!-- 景点详情弹窗 -->
+  <AttractionDetailDialog
+    v-model="dialogVisible"
+    :attraction="selectedAttraction"
+    :loading="detailLoading"
+    :favorite-loading="favoriteLoading"
+    @favorite="handleFavoriteFromDialog"
+    @start-planning="goPlanningWith"
+  />
 </template>
 
 <script setup lang="ts">
 import serverConfig from '@/configs'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { Motion } from 'motion-v'
+import { getAttractions, getAttractionDetail, addFavorite, getFavorites, removeFavorite } from '@/api/Travel-planning/attraction'
+import type { Attraction, AttractionDetail, FavoriteItem } from '@/types/factory'
+import { ElMessage, ElDialog } from 'element-plus'
+import HeroSection from '@/components/pages/index/HeroSection.vue'
+import DestinationsSection from '@/components/pages/index/DestinationsSection.vue'
+import GuidesSection from '@/components/pages/index/GuidesSection.vue'
+import ActivitiesSection from '@/components/pages/index/ActivitiesSection.vue'
+import AttractionDetailDialog from '@/components/pages/index/AttractionDetailDialog.vue'
 
 const router = useRouter()
 
 // 搜索
 const searchQuery = ref('')
 const presetKeywords = ref<string[]>(['热门: 三亚', '亲子', '美食', '徒步', '海岛', '自驾'])
-const handleSearch = () => {
-  if (!searchQuery.value.trim()) return
+const handleSearch = (query?: string) => {
+  const searchTerm = query || searchQuery.value
+  if (!searchTerm.trim()) return
   // 简单跳转到规划页并带上参数
-  router.push({ path: '/planning', query: { q: searchQuery.value } })
+  router.push({ path: '/planning', query: { q: searchTerm } })
 }
 const applyKeyword = (k: string) => {
   searchQuery.value = k.replace(/^热门:\s*/, '')
-  handleSearch()
+  handleSearch(k.replace(/^热门:\s*/, ''))
 }
 
 // 目的地推荐
-interface Destination { id: number; name: string; description: string; tags: string[] }
-const destinations = ref<Destination[]>([
-  { id: 1, name: '三亚', description: '阳光海滩与美食天堂', tags: ['海岛', '美食', '亲子'] },
-  { id: 2, name: '成都', description: '慢节奏美食之都，熊猫的故乡', tags: ['美食', '人文'] },
-  { id: 3, name: '张家界', description: '世界自然遗产，绝美奇峰怪石', tags: ['徒步', '摄影'] },
-  { id: 4, name: '杭州', description: '人间天堂西湖畔，茶香与古韵', tags: ['人文', '轻旅'] },
-  { id: 5, name: '敦煌', description: '丝绸之路重镇，莫高窟壁画瑰宝', tags: ['历史', '人文'] },
-  { id: 6, name: '青海湖', description: '高原湖泊，环湖骑行胜地', tags: ['自驾', '骑行'] },
-])
-const shuffleDestinations = () => {
-  destinations.value = [...destinations.value].sort(() => Math.random() - 0.5)
+const allDestinations = ref<Attraction[]>([]) // 存储所有景点数据
+const destinations = ref<Attraction[]>([]) // 当前显示的景点（最多6个）
+const loading = ref(false)
+const dialogVisible = ref(false)
+const selectedAttraction = ref<AttractionDetail | null>(null)
+const detailLoading = ref(false)
+const favoriteLoading = ref(false)
+
+// 收藏列表
+const favoritesList = ref<FavoriteItem[]>([])
+const favoritesMap = ref<Map<number, number>>(new Map()) // attractionId -> favoriteId
+
+// 获取收藏列表
+const loadFavorites = async () => {
+  try {
+    const response = await getFavorites({ page: 1, page_size: 1000 })
+    if (response.code === 200) {
+      favoritesList.value = response.data.favorites
+      // 构建收藏映射表
+      favoritesMap.value.clear()
+      response.data.favorites.forEach(favorite => {
+        favoritesMap.value.set(favorite.attraction.id, favorite.id)
+      })
+      // 更新景点收藏状态
+      updateAttractionsWithFavorites()
+    }
+  } catch (error) {
+    console.error('获取收藏列表失败:', error)
+  }
 }
-const goPlanningWith = (name: string) => router.push({ path: '/planning', query: { dest: name } })
+
+// 更新景点收藏状态
+const updateAttractionsWithFavorites = () => {
+  allDestinations.value.forEach(attraction => {
+    attraction.isFavorited = favoritesMap.value.has(attraction.id)
+  })
+  destinations.value.forEach(attraction => {
+    attraction.isFavorited = favoritesMap.value.has(attraction.id)
+  })
+}
+
+// 获取景点列表
+const loadAttractions = async () => {
+  try {
+    loading.value = true
+    const response = await getAttractions()
+    if (response.code === 200) {
+      allDestinations.value = response.data.attractions
+      // 显示前6个景点
+      destinations.value = allDestinations.value.slice(0, 6)
+      // 加载完景点后更新收藏状态
+      updateAttractionsWithFavorites()
+    } else {
+      ElMessage.error(response.msg || '获取景点列表失败')
+    }
+  } catch (error) {
+    console.error('获取景点列表失败:', error)
+    ElMessage.error('获取景点列表失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+// 获取景点详情
+const showAttractionDetail = async (attractionId: number) => {
+  try {
+    detailLoading.value = true
+    dialogVisible.value = true
+    const response = await getAttractionDetail(attractionId)
+    if (response.code === 200) {
+      selectedAttraction.value = response.data
+      // 设置收藏状态
+      if (selectedAttraction.value) {
+        selectedAttraction.value.isFavorited = favoritesMap.value.has(attractionId)
+      }
+    } else {
+      ElMessage.error(response.msg || '获取景点详情失败')
+      dialogVisible.value = false
+    }
+  } catch (error) {
+    console.error('获取景点详情失败:', error)
+    ElMessage.error('获取景点详情失败')
+    dialogVisible.value = false
+  } finally {
+    detailLoading.value = false
+  }
+}
+
+// 处理收藏/取消收藏
+const handleFavorite = async (attractionId: number, event?: Event) => {
+  if (event) {
+    event.stopPropagation()
+  }
+  
+  const isFavorited = favoritesMap.value.has(attractionId)
+  favoriteLoading.value = true
+  
+  try {
+    if (isFavorited) {
+      // 取消收藏
+      const favoriteId = favoritesMap.value.get(attractionId)!
+      const response = await removeFavorite(favoriteId)
+      if (response.code === 200) {
+        ElMessage.success('取消收藏成功')
+        // 更新本地数据
+        favoritesMap.value.delete(attractionId)
+        favoritesList.value = favoritesList.value.filter(f => f.id !== favoriteId)
+        
+        // 更新景点收藏状态
+        if (selectedAttraction.value && selectedAttraction.value.id === attractionId) {
+          selectedAttraction.value.isFavorited = false
+        }
+        const allAttraction = allDestinations.value.find(d => d.id === attractionId)
+        if (allAttraction) {
+          allAttraction.isFavorited = false
+        }
+        const attraction = destinations.value.find(d => d.id === attractionId)
+        if (attraction) {
+          attraction.isFavorited = false
+        }
+      } else {
+        ElMessage.error(response.msg || '取消收藏失败')
+      }
+    } else {
+      // 添加收藏
+      const response = await addFavorite({ attraction_id: attractionId })
+      if (response.code === 200) {
+        ElMessage.success('收藏成功')
+        // 重新加载收藏列表以获取最新数据
+        await loadFavorites()
+      } else {
+        ElMessage.error(response.msg || '收藏失败')
+      }
+    }
+  } catch (error) {
+    console.error('收藏操作失败:', error)
+    ElMessage.error('收藏操作失败')
+  } finally {
+    favoriteLoading.value = false
+  }
+}
+
+// 处理从弹窗组件传递过来的收藏事件
+const handleFavoriteFromDialog = async (attractionId: number) => {
+  await handleFavorite(attractionId)
+  // 确保弹窗中的收藏状态得到更新
+  if (selectedAttraction.value && selectedAttraction.value.id === attractionId) {
+    selectedAttraction.value.isFavorited = favoritesMap.value.has(attractionId)
+  }
+}
+
+const shuffleDestinations = () => {
+  if (allDestinations.value.length <= 6) {
+    // 如果总数不超过6个，就随机排序
+    destinations.value = [...allDestinations.value].sort(() => Math.random() - 0.5)
+  } else {
+    // 如果总数超过6个，随机选择6个不同的景点
+    const shuffled = [...allDestinations.value].sort(() => Math.random() - 0.5)
+    destinations.value = shuffled.slice(0, 6)
+  }
+}
+const goPlanningWith = (destination: Attraction | string) => {
+  if (typeof destination === 'string') {
+    router.push({ path: '/planning', query: { dest: destination } })
+  } else {
+    router.push({ path: '/planning', query: { destination: destination.name, id: destination.id.toString() } })
+  }
+}
+
+// 页面加载时获取数据
+onMounted(async () => {
+  // 先加载收藏列表，再加载景点列表
+  await loadFavorites()
+  await loadAttractions()
+})
 
 // 旅游攻略
 interface Guide { id: number; title: string; summary: string }

@@ -15,8 +15,8 @@ export const devConfig: UserConfig = {
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['vue', 'vue-router'],
-          elementPlus: ['element-plus'],
+          vendor: ["vue", "vue-router"],
+          elementPlus: ["element-plus"],
         },
       },
     },
@@ -29,8 +29,8 @@ export const devConfig: UserConfig = {
     devSourcemap: true,
   },
   optimizeDeps: {
-    include: ['vue', 'vue-router', 'element-plus'],
+    include: ["vue", "vue-router", "element-plus"],
   },
-}
+};
 
 export default defineConfig(devConfig)

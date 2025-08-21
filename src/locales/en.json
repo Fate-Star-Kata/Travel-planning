@@ -49,7 +49,12 @@
     "admin":"admin",
     "stats": "stats",
     "knowledge": "Knowledge Base",
-    "templates": "Templates"
+    "templates": "Templates",
+    "planning": "Planning"
+  },
+  "header": {
+    "login": "Login",
+    "register": "Register"
   },
   "form": {
     "username": "Username",

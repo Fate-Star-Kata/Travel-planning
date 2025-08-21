@@ -23,9 +23,16 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * 地图图标组件
+ * @description 用于显示地图相关的SVG图标
+ */
+
 // 定义组件属性
 interface Props {
+  /** 图标大小，可以是数字或字符串 */
   size?: string | number
+  /** 图标颜色，支持任何有效的CSS颜色值 */
   color?: string
 }
 
