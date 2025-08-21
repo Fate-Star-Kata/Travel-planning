@@ -131,7 +131,7 @@ export interface AttractionApiResponse {
 }
 
 // 通用API响应
-export interface ApiResponse {
+export interface CommonApiResponse {
   code: number
   msg: string
   data?: any

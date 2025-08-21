@@ -4,7 +4,7 @@ import type {
   AttractionQueryParams,
   AttractionCreateRequest,
   AttractionUpdateRequest,
-  ApiResponse
+  CommonApiResponse
 } from '@/types/factory'
 import serviceAxios from '@/http'
 
@@ -29,7 +29,7 @@ export function getAttractionDetailAPI(id: number): Promise<AttractionApiRespons
 }
 
 // 创建景点
-export function createAttractionAPI(data: AttractionCreateRequest): Promise<ApiResponse> {
+export function createAttractionAPI(data: AttractionCreateRequest): Promise<CommonApiResponse> {
   return serviceAxios({
     url: '/travel/admin/management/',
     method: 'post',
@@ -38,7 +38,7 @@ export function createAttractionAPI(data: AttractionCreateRequest): Promise<ApiR
 }
 
 // 更新景点
-export function updateAttractionAPI(id: number, data: AttractionUpdateRequest): Promise<ApiResponse> {
+export function updateAttractionAPI(id: number, data: AttractionUpdateRequest): Promise<CommonApiResponse> {
   return serviceAxios({
     url: `/travel/admin/management/attraction/${id}/`,
     method: 'put',
@@ -47,7 +47,7 @@ export function updateAttractionAPI(id: number, data: AttractionUpdateRequest): 
 }
 
 // 删除景点
-export function deleteAttractionAPI(id: number): Promise<ApiResponse> {
+export function deleteAttractionAPI(id: number): Promise<CommonApiResponse> {
   return serviceAxios({
     url: `/travel/admin/management/attraction/${id}/`,
     method: 'delete'
@@ -55,7 +55,7 @@ export function deleteAttractionAPI(id: number): Promise<ApiResponse> {
 }
 
 // 批量删除景点
-export function batchDeleteAttractionsAPI(ids: number[]): Promise<ApiResponse> {
+export function batchDeleteAttractionsAPI(ids: number[]): Promise<CommonApiResponse> {
   return serviceAxios({
     url: '/travel/admin/management/attractions/batch-delete/',
     method: 'post',
@@ -64,7 +64,7 @@ export function batchDeleteAttractionsAPI(ids: number[]): Promise<ApiResponse> {
 }
 
 // 更新景点状态
-export function updateAttractionStatusAPI(id: number, status: boolean): Promise<ApiResponse> {
+export function updateAttractionStatusAPI(id: number, status: boolean): Promise<CommonApiResponse> {
   return serviceAxios({
     url: `/travel/admin/management/attraction/${id}/status/`,
     method: 'patch',

@@ -99,7 +99,11 @@ const handleAdd = () => {
     email: '',
     is_active: false,
     is_staff: false,
-    is_superuser: false
+    is_superuser: false,
+    memberLevel: 'basic',
+    totalTrips: 0,
+    registrationDate: '',
+    status: 'active'
   }
 
   editableData[newUser.id as any] = cloneDeep(newUser)

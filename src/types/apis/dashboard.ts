@@ -84,7 +84,7 @@ export interface HotAttractionsResponse {
 }
 
 // 用户信息
-export interface UserInfo {
+export interface UserInfos {
   id: number
   avatar: string | null
   phone: string | null
@@ -112,7 +112,7 @@ export interface UserItem {
   is_active: boolean
   is_staff: boolean
   is_superuser: boolean
-  user_info: UserInfo
+  user_info: UserInfos
 }
 
 // 用户增长图表数据项
