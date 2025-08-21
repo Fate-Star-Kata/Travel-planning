@@ -269,8 +269,8 @@ const iconVariants = {
             <span class="text-lg font-medium">仪表板</span>
             <Motion :initial="{ scale: 0.8, opacity: 0 }" :animate="{ scale: 1, opacity: 1 }"
               :whileHover="{ scale: 1.05 }" :transition="{ duration: 0.3, delay: 0.5 }">
-              <el-button type="primary" size="small" :loading="loading || hotAttractionsLoading"
-                @click="() => { fetchStats(); fetchHotAttractions(); }">刷新数据</el-button>
+              <el-button type="primary" size="small" :loading="loading || hotAttractionsLoading || userGrowthLoading"
+                @click="() => { fetchStats(); fetchHotAttractions(); fetchUserGrowthData(); }">刷新数据</el-button>
             </Motion>
           </div>
         </template>
@@ -460,7 +460,7 @@ const iconVariants = {
           <template #header>
             <span class="font-medium">用户增长趋势</span>
           </template>
-          <div class="h-64" v-loading="userGrowthLoading">
+          <div class="h-96" v-loading="userGrowthLoading">
             <VChart :option="userGrowthChartOption" class="w-full h-full" />
           </div>
         </el-card>
@@ -479,20 +479,21 @@ const iconVariants = {
 
             </div>
           </template>
-          <div class="space-y-4" v-loading="hotAttractionsLoading">
+          <div class="space-y-3 h-80 overflow-y-auto px-2" v-loading="hotAttractionsLoading">
             <Motion v-for="(item, index) in formattedHotAttractions" :key="item.id" :initial="{ opacity: 0, x: -20 }"
-              :animate="{ opacity: 1, x: 0 }" :whileHover="{ x: 8, scale: 1.02 }"
+              :animate="{ opacity: 1, x: 0 }" :whileHover="{ x: 6, scale: 1.01 }"
               :transition="{ duration: 0.3, delay: 1.0 + index * 0.1 }"
-              class="relative flex items-center justify-between p-4 rounded-xl border border-gray-100 hover:border-blue-200 hover:shadow-md cursor-pointer transition-all duration-300"
+              class="relative flex items-center justify-between p-3 mx-3 rounded-lg border border-gray-100 hover:border-blue-200 hover:shadow-md cursor-pointer transition-all duration-300"
               :class="{
-                'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200': index === 0,
+                'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200 mt-4': index === 0,
                 'bg-gradient-to-r from-gray-50 to-blue-50 border-gray-200': index === 1,
                 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200': index === 2,
-                'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200': index >= 3
+                'bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200': index >= 3,
+                'mb-4': index === formattedHotAttractions.length - 1
               }">
               <!-- 排名徽章 -->
               <div
-                class="absolute -top-2 -left-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white"
+                class="absolute -top-1 -left-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold text-white"
                 :class="{
                   'bg-gradient-to-r from-yellow-400 to-yellow-600': index === 0,
                   'bg-gradient-to-r from-gray-400 to-gray-600': index === 1,
@@ -502,15 +503,15 @@ const iconVariants = {
                 {{ index + 1 }}
               </div>
 
-              <div class="flex items-center space-x-4 flex-1">
+              <div class="flex items-center space-x-3 flex-1">
                 <!-- 景点图标 -->
-                <div class="flex items-center justify-center w-12 h-12 rounded-xl" :class="{
+                <div class="flex items-center justify-center w-10 h-10 rounded-lg" :class="{
                   'bg-yellow-200 text-yellow-700': index === 0,
                   'bg-gray-200 text-gray-700': index === 1,
                   'bg-orange-200 text-orange-700': index === 2,
                   'bg-blue-200 text-blue-700': index >= 3
                 }">
-                  <el-icon size="24">
+                  <el-icon size="20">
                     <MapLocation />
                   </el-icon>
                 </div>
@@ -518,41 +519,41 @@ const iconVariants = {
                 <!-- 景点信息 -->
                 <div class="flex-1">
                   <div class="flex items-center space-x-2 mb-1">
-                    <p class="font-semibold text-gray-900 text-base">{{ item.name }}</p>
+                    <p class="font-medium text-gray-900 text-sm">{{ item.name }}</p>
                     <el-tag size="small" v-if="index < 3"
                       :type="index === 0 ? 'warning' : index === 1 ? 'info' : 'danger'">热门</el-tag>
                   </div>
-                  <p class="text-sm text-gray-600 flex items-center">
-                    <el-icon size="14" class="mr-1">
+                  <p class="text-xs text-gray-600 flex items-center">
+                    <el-icon size="12" class="mr-1">
                       <Location />
                     </el-icon>
                     {{ item.location }}
                   </p>
-                  <p class="text-xs text-gray-500 mt-1">{{ item.category }}</p>
+                  <p class="text-xs text-gray-500 mt-0.5">{{ item.category }}</p>
                 </div>
               </div>
 
               <!-- 访问数据 -->
               <div class="text-right">
-                <div class="flex items-center space-x-2 mb-1">
-                  <p class="font-bold text-lg" :class="{
+                <div class="flex items-center space-x-1 mb-1">
+                  <p class="font-semibold text-base" :class="{
                     'text-yellow-700': index === 0,
                     'text-gray-700': index === 1,
                     'text-orange-700': index === 2,
                     'text-blue-700': index >= 3
                   }">{{ item.visits.toLocaleString() }}</p>
-                  <el-icon size="16" class="text-gray-400">
+                  <el-icon size="14" class="text-gray-400">
                     <View />
                   </el-icon>
                 </div>
                 <p class="text-xs text-gray-500">本月访问量</p>
                 <!-- 评分信息 -->
-                <div class="flex items-center justify-end mt-1 space-x-1" v-if="item.rating > 0">
+                <div class="flex items-center justify-end mt-0.5 space-x-1" v-if="item.rating > 0">
                   <span class="text-xs text-orange-500">{{ item.rating.toFixed(1) }}分</span>
                 </div>
                 <!-- 访问趋势 -->
-                <div class="flex items-center justify-end mt-1 space-x-1">
-                  <el-icon size="12" class="text-green-500">
+                <div class="flex items-center justify-end mt-0.5 space-x-1">
+                  <el-icon size="10" class="text-green-500">
                     <CaretTop />
                   </el-icon>
                   <span class="text-xs text-green-500">+{{ (Math.random() * 20 + 5).toFixed(1) }}%</span>
